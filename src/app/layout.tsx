@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+<<<<<<< HEAD
 import { TRPCReactProvider } from "@/trpc/client";  // ✅ Use the existing export
 import { Toaster } from "sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Provider } from "jotai";
 import { ThemeProvider } from "@/components/theme-provider";
+=======
+>>>>>>> a8e8e67c77fde1faff51590d1d56abb1362b512d
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,6 +27,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+<<<<<<< HEAD
 }: {
   children: React.ReactNode;
 }) {
@@ -49,3 +53,18 @@ export default function RootLayout({
     </html>
   );
 }
+=======
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+>>>>>>> a8e8e67c77fde1faff51590d1d56abb1362b512d
