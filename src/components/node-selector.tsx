@@ -31,6 +31,20 @@ const triggerNodes: NodeTypeOption[] = [
       "Runs the flow on clicking a button. Good for getting started quickly",
     icon: MousePointerIcon,
   },
+  {
+    type: NodeType.GOOGLE_FORM_TRIGGER,
+    label: "Google Form",
+    description:
+      "Runs the flow when a Google Form is submitted",
+    icon: "/googleform.svg",
+  },
+  {
+    type: NodeType.STRIPE_TRIGGER,
+    label: "Stripe Event",
+    description:
+      "Runs the flow when a specific event occurs in your Stripe account",
+    icon: "/stripe.svg",
+  },
 ];
 
 const executionNodes: NodeTypeOption[] = [
@@ -40,6 +54,37 @@ const executionNodes: NodeTypeOption[] = [
     description: "Makes an HTTP request",
     icon: GlobeIcon,
   },
+  {
+    type: NodeType.GEMINI,
+    label: "Gemini AI",
+    description: "Uses Gemini AI to generate text",
+    icon: '/gemini.svg',
+  },
+  {
+    type: NodeType.OPENAI,
+    label: "OpenAI",
+    description: "Uses OpenAI to generate text",
+    icon: '/openai.svg',
+  },
+  {
+    type: NodeType.ANTHROPIC,
+    label: "Anthropic",
+    description: "Uses Anthropic to generate text",
+    icon: '/anthropic.svg',
+  },
+  {
+    type: NodeType.DISCORD,
+    label: "Discord",
+    description: "Send messages to Discord channels using a bot",
+    icon: "/discord.svg",
+  },
+  {
+    type: NodeType.SLACK,
+    label: "Slack",
+    description: "Send messages to Slack channels using a webhook",
+    icon: "/slack.svg",
+  },
+  
 ];
 
 interface NodeSelectorProps {

@@ -1,77 +1,111 @@
 import type { NodeExecutor } from "@/features/executions/types";
 import { NonRetriableError } from "inngest";
-import ky, { type Options as KyOptions }from "ky";
+import ky, { type Options as KyOptions } from "ky";
 import Handlebars from "handlebars";
-import { Handle } from "vaul";
+import { httpRequestChannel } from "@/inngest/channels/http-request";
 
 type HttpRequestData = {
   variableName?: string;
   endpoint?: string;
-  method?:"GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-  body?:string;
+  method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+  body?: string;
 };
-Handlebars.registerHelper('json',(context) => JSON.stringify(context,null,2)); 
 
+Handlebars.registerHelper("json", (context) => {
+  const jsonString = JSON.stringify(context, null, 2);
+  return new Handlebars.SafeString(jsonString);
+});
 
 export const httpRequestExecutor: NodeExecutor<HttpRequestData> = async ({
   data,
   nodeId,
   context,
   step,
+  publish,
 }) => {
-  // TODO: Publish "loading" state for http request
-  if (!data.endpoint) {
+  await publish(
+    httpRequestChannel().status({
+      nodeId,
+      status: "loading",
+    })
+  );
+
+  if (!data.endpoint) {await publish(
+    httpRequestChannel().status({
+      nodeId,
+      status: "error",
+    })
+  );
+
     throw new NonRetriableError("Endpoint is required");
-  };
+  }
 
   if (!data.variableName) {
-    throw new NonRetriableError("variable name is not configured");
-  };
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "loading",
+      })
+    );
+    throw new NonRetriableError("Variable name is not configured");
+  }
 
   if (!data.method) {
-    throw new NonRetriableError("method is not configured");
-  };
-
+    await publish(
+      httpRequestChannel().status({
+        nodeId,
+        status: "loading",
+      })
+    );
+    throw new NonRetriableError("Method is not configured");
+  }
+  try{
   const result = await step.run("http-request", async () => {
     const method = data.method || "GET";
-    const endpoint=Handlebars.compile(data.endpoint!)(context);
-    console.log("ENDPOINT",{endpoint});
-    const options:KyOptions= {
-      method,
-    };
-    if (["POST","PUT","PATCH"].includes(method)){
-      const resolved =Handlebars.compile(data.body||"{}")(context);
+    const endpoint = Handlebars.compile(data.endpoint!)(context);
+
+    const options: KyOptions = { method };
+
+    if (["POST", "PUT", "PATCH"].includes(method)) {
+      const resolved = Handlebars.compile(data.body || "{}")(context);
       JSON.parse(resolved);
-      
-        options.body=resolved;
-        options.headers={
-          "Content-Type":"application/json"
-        };
-      }
-      const response = await ky(endpoint, options);
-      const contentType = response.headers.get("content-type");
-      const responseData = contentType?.includes("application/json")
-        ? await response.json()
-        : await response.text();
+      options.body = resolved;
+      options.headers = { "Content-Type": "application/json" };
+    }
 
-      const responsePayload={
-        httpResponse:{status:response.status,
-        statusText:response.statusText,
-        data:responseData
+    const response = await ky(endpoint, options);
+    const contentType = response.headers.get("content-type");
+    const responseData = contentType?.includes("application/json")
+      ? await response.json()
+      : await response.text();
+
+    return {
+      ...context,
+      [data.variableName!]: {
+        httpResponse: {
+          status: response.status,
+          statusText: response.statusText,
+          data: responseData,
         },
-      };
-
-      return {
-        ...context,
-        [data.variableName!]:responsePayload,
-      };
-
+      },
+    };
   });
 
+  await publish(
+    httpRequestChannel().status({
+      nodeId,
+      status: "success",
+    })
+  );
 
-  // TODO: Publish "success" state for http request
-
-  return {
-   result
-  };
+  return { result };
+}catch(error){
+  await publish(
+    httpRequestChannel().status({
+      nodeId,
+      status: "error",
+    }),
+  );
+  throw error;
+}
 };

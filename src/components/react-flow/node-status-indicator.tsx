@@ -1,10 +1,8 @@
 import { type ReactNode } from "react";
 import { LoaderCircle } from "lucide-react";
-
 import { cn } from "@/lib/utils";
 
 export type NodeStatus = "loading" | "success" | "error" | "initial";
-
 export type NodeStatusVariant = "overlay" | "border";
 
 export type NodeStatusIndicatorProps = {
@@ -14,25 +12,24 @@ export type NodeStatusIndicatorProps = {
   className?: string;
 };
 
-export const SpinnerLoadingIndicator = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+/* ---------------- LOADING (POPPY BLUE) ---------------- */
+export const SpinnerLoadingIndicator = ({ children }: { children: ReactNode }) => {
   return (
     <div className="relative">
-      <StatusBorder className="border-blue-700/40">{children}</StatusBorder>
+      <StatusBorder className="border-blue-500 shadow-[0_0_10px_3px_rgba(0,115,255,0.6)]">
+        {children}
+      </StatusBorder>
 
-      <div className="bg-background/50 absolute inset-0 z-50 rounded-[9px] backdrop-blur-xs" />
+      <div className="absolute inset-0 z-50 rounded-[9px] bg-background/40 backdrop-blur-xs" />
       <div className="absolute inset-0 z-50">
-        <span className="absolute top-[calc(50%-1.25rem)] left-[calc(50%-1.25rem)] inline-block h-10 w-10 animate-ping rounded-full bg-blue-700/20" />
-
-        <LoaderCircle className="absolute top-[calc(50%-0.75rem)] left-[calc(50%-0.75rem)] size-6 animate-spin text-blue-700" />
+        <span className="absolute h-10 w-10 animate-ping rounded-full bg-blue-400/30 top-[calc(50%-20px)] left-[calc(50%-20px)]" />
+        <LoaderCircle className="absolute size-6 animate-spin text-blue-600 top-[calc(50%-12px)] left-[calc(50%-12px)]" />
       </div>
     </div>
   );
 };
 
+/* ---------------- LOADING BORDER (Poppy Blue Spinner) ---------------- */
 export const BorderLoadingIndicator = ({
   children,
   className,
@@ -42,37 +39,27 @@ export const BorderLoadingIndicator = ({
 }) => {
   return (
     <>
-      <div className="absolute -top-[2px] -left-[2px] h-[calc(100%+4px)] w-[calc(100%+4px)]">
+      <div className="absolute -top-[2px] -left-[2px] h-[calc(100%+4px)] w-[calc(100%+4px)] pointer-events-none">
         <style>
           {`
-        @keyframes spin {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        .spinner {
-          animation: spin 2s linear infinite;
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          width: 140%;
-          aspect-ratio: 1;
-          transform-origin: center;
-        }
-      `}
+          @keyframes spin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+          }
+        `}
         </style>
-        <div className={cn
-          
-          ("absolute inset-0 overflow-hidden rounded-sm",
-          className,
-          )}>
-          <div className="spinner rounded-full bg-[conic-gradient(from_0deg_at_50%_50%,rgb(42,67,233)_0deg,rgba(42,138,246,0)_360deg)]" />
+
+        <div className={cn("absolute inset-0 overflow-hidden rounded-sm", className)}>
+          <div className="absolute left-1/2 top-1/2 w-[140%] aspect-square rounded-full bg-[conic-gradient(from_0deg,rgb(0,140,255),rgba(0,140,255,0))] animate-[spin_1.8s_linear_infinite]" />
         </div>
       </div>
+
       {children}
     </>
   );
 };
 
+/* ---------------- BASE BORDER ---------------- */
 const StatusBorder = ({
   children,
   className,
@@ -93,6 +80,7 @@ const StatusBorder = ({
   );
 };
 
+/* ---------------- FINAL INDICATOR ---------------- */
 export const NodeStatusIndicator = ({
   status,
   variant = "border",
@@ -100,22 +88,45 @@ export const NodeStatusIndicator = ({
   className,
 }: NodeStatusIndicatorProps) => {
   switch (status) {
+    /* LOADING */
     case "loading":
-      switch (variant) {
-        case "overlay":
-          return <SpinnerLoadingIndicator>{children}</SpinnerLoadingIndicator>;
-        case "border":
-          return <BorderLoadingIndicator className={className}>{children}</BorderLoadingIndicator>;
-        default:
-          return <>{children}</>;
+      if (variant === "overlay") {
+        return <SpinnerLoadingIndicator>{children}</SpinnerLoadingIndicator>;
       }
+      if (variant === "border") {
+        return <BorderLoadingIndicator className={className}>{children}</BorderLoadingIndicator>;
+      }
+      return <>{children}</>;
+
+    /* SUCCESS — POPPY GREEN */
     case "success":
       return (
-        <StatusBorder className={cn("border-emerald-600",className)}>{children}</StatusBorder>
+        <StatusBorder
+          className={cn(
+            "border-green-500 shadow-[0_0_12px_4px_rgba(0,200,90,0.6)]",
+            className
+          )}
+        >
+          {children}
+        </StatusBorder>
       );
+
+    /* ERROR — POPPY HOT RED */
     case "error":
-      return <StatusBorder className={cn("border-red-400",className)}>{children}</StatusBorder>;
+      return (
+        <StatusBorder
+          className={cn(
+            "border-red-500 shadow-[0_0_12px_4px_rgba(255,60,60,0.6)]",
+            className
+          )}
+        >
+          {children}
+        </StatusBorder>
+      );
+
+    /* NONE */
     default:
       return <>{children}</>;
   }
 };
+
