@@ -1,3 +1,5 @@
+import "server-only";
+
 import { Inngest } from "inngest";
 import { realtimeMiddleware } from "@inngest/realtime/middleware";
 

@@ -1,7 +1,6 @@
 "use client";
-import { getSubscriptionToken, type Realtime } from "@inngest/realtime";
+import type { Realtime } from "@inngest/realtime";
 import { httpRequestChannel } from "@/inngest/channels/http-request";
-import { inngest } from "@/inngest/client";
 
 export type HttpRequestToken = Realtime.Token<
   typeof httpRequestChannel,
@@ -9,10 +8,9 @@ export type HttpRequestToken = Realtime.Token<
 >;
 
 export async function fetchHttpRequestRealtimeToken(): Promise<HttpRequestToken> {
-    const token = await getSubscriptionToken(inngest, {
-      channel: httpRequestChannel(),
-      topics: ["status"],
-    });
-  
-    return token;
+  const response = await fetch("/api/inngest/tokens/http-request");
+  if (!response.ok) {
+    throw new Error("Failed to fetch HTTP Request token");
   }
+  return response.json();
+}

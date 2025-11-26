@@ -1,7 +1,6 @@
 "use client";
-import { getSubscriptionToken, type Realtime } from "@inngest/realtime";
+import type { Realtime } from "@inngest/realtime";
 import { manualTriggerChannel } from "@/inngest/channels/manual-trigger";
-import { inngest } from "@/inngest/client";
 
 export type ManualTriggerToken = Realtime.Token<
   typeof manualTriggerChannel,
@@ -9,10 +8,9 @@ export type ManualTriggerToken = Realtime.Token<
 >;
 
 export async function fetchManualTriggerRealtimeToken(): Promise<ManualTriggerToken> {
-    const token = await getSubscriptionToken(inngest, {
-      channel: manualTriggerChannel(),
-      topics: ["status"],
-    });
-  
-    return token;
+  const response = await fetch("/api/inngest/tokens/manual-trigger");
+  if (!response.ok) {
+    throw new Error("Failed to fetch Manual Trigger token");
   }
+  return response.json();
+}
