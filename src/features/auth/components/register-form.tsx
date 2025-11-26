@@ -144,23 +144,39 @@ export function RegisterForm() {
                 <span className="h-px flex-1 bg-muted" />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-2">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => toast("Google sign-in not implemented")}
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={() =>
+                    authClient.signIn.social(
+                      { provider: "google", callbackURL: "/" },
+                      {
+                        onError: (ctx) => toast.error(ctx.error.message),
+                      },
+                    )
+                  }
                 >
                   <Image src="/google.svg" width={20} height={20} alt="Google"/>
-                  Continue with Google
+                  <span className="whitespace-nowrap">Continue with Google</span>
                 </Button>
 
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => toast("GitHub sign-in not implemented")}
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={() =>
+                    authClient.signIn.social(
+                      { provider: "github", callbackURL: "/" },
+                      {
+                        onError: (ctx) => toast.error(ctx.error.message),
+                      },
+                    )
+                  }
                 >
                   <Image src="/github.svg" width={20} height={20} alt="GitHub" />
-                  Continue with GitHub
+                  <span className="whitespace-nowrap">Continue with GitHub</span>
                 </Button>
               </div>
 

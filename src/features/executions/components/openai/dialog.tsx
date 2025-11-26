@@ -22,7 +22,16 @@ import { Button } from "@/components/ui/button";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { CredentialType } from "@/generated/prisma/enums";
+import { useCredentialsByType } from "@/features/credentials/hooks/use-credentials";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const openAIAFormSchema = z.object({
   variableName: z
@@ -32,6 +41,8 @@ export const openAIAFormSchema = z.object({
       message:
         "Variable name must start with a letter or underscore and contain only letters, numbers, and underscores",
     }),
+  // Make credential optional so the node can use env-based API key instead
+  credentialId: z.string().optional(),
   systemPrompt: z.string().optional(),
   userPrompt: z.string().min(1, { message: "User prompt is required" }),
 });
@@ -41,6 +52,7 @@ interface OpenAIDialogProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (values: z.infer<typeof openAIAFormSchema>) => void;
   defaultVariableName?: string;
+  defaultCredentialId?: string;
   defaultSystemPrompt?: string;
   defaultUserPrompt?: string;
 }
@@ -50,13 +62,26 @@ export const OpenAIDialog = ({
   onOpenChange,
   onSubmit,
   defaultVariableName = "",
+  defaultCredentialId,
   defaultSystemPrompt = "",
   defaultUserPrompt = "",
 }: OpenAIDialogProps) => {
+  const { data: credentials = [] } = useCredentialsByType(CredentialType.OPENAI);
+
+  const credentialOptions = useMemo(
+    () =>
+      credentials.map((c) => ({
+        id: c.id,
+        name: c.name,
+      })),
+    [credentials]
+  );
+
   const form = useForm<z.infer<typeof openAIAFormSchema>>({
     resolver: zodResolver(openAIAFormSchema),
     defaultValues: {
       variableName: defaultVariableName,
+      credentialId: defaultCredentialId ?? "",
       systemPrompt: defaultSystemPrompt,
       userPrompt: defaultUserPrompt,
     },
@@ -77,11 +102,19 @@ export const OpenAIDialog = ({
     if (open) {
       form.reset({
         variableName: defaultVariableName,
+        credentialId: defaultCredentialId ?? "",
         systemPrompt: defaultSystemPrompt,
         userPrompt: defaultUserPrompt,
       });
     }
-  }, [open, defaultVariableName, defaultSystemPrompt, defaultUserPrompt, form]);
+  }, [
+    open,
+    defaultVariableName,
+    defaultCredentialId,
+    defaultSystemPrompt,
+    defaultUserPrompt,
+    form,
+  ]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -95,6 +128,37 @@ export const OpenAIDialog = ({
 
         <Form {...form}>
           <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="credentialId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>API Key (optional)</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value ?? ""}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Use default (env) key or pick a credential" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {credentialOptions.map((cred) => (
+                          <SelectItem key={cred.id} value={cred.id}>
+                            {cred.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormDescription>
+                    Optional: choose a saved OpenAI API key, or leave empty to use the default env key.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="variableName"

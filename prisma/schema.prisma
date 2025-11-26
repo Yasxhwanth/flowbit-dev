@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -22,10 +19,11 @@ model User {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
+
   sessions      Session[]
   accounts      Account[]
   workflows     Workflow[]
-
+  credentials   Credential[]
 
   @@unique([email])
   @@map("user")
@@ -39,8 +37,9 @@ model Session {
   updatedAt DateTime @updatedAt
   ipAddress String?
   userAgent String?
+
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
   @@map("session")
@@ -51,7 +50,9 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user                  User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -76,19 +77,39 @@ model Verification {
   @@map("verification")
 }
 
-model Workflow{
-  id String @id @default(cuid())
-  name String
+model Credential {
+  id        String   @id @default(cuid())
+  type      CredentialType
+  name      String
+  value     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  nodes Node[]
-  connections Connection[]
-
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  nodes   Node[] @relation("CredentialNodes")
 }
 
+enum CredentialType {
+  OPENAI
+  ANTHROPIC
+  GEMINI
+}
+
+model Workflow {
+  id          String @id @default(cuid())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  nodes        Node[]
+  connections  Connection[]
+  executions Execution[]
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
 enum NodeType {
   INITIAL
@@ -104,24 +125,30 @@ enum NodeType {
 }
 
 model Node {
-  id        String @id @default(cuid())
-  workflowId String
-  workflow  Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  name      String
-  type      NodeType
-  data Json @default("{}")
+  id          String @id @default(cuid())
+
+  workflowId  String
+  workflow    Workflow @relation(fields: [workflowId], references: [id])
+
+  name        String
+  type        NodeType
+
+  // JSON default removed — Prisma 6.x does NOT support JSON defaults
+  data        Json
+
+  credentialId String?
+  credential   Credential? @relation("CredentialNodes", fields: [credentialId], references: [id], onDelete: Cascade)
 
   outputConnections Connection[] @relation("FromNode")
-  inputConnections Connection[] @relation("ToNode")
-
+  inputConnections  Connection[] @relation("ToNode")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
 }
 
 model Connection {
   id          String @id @default(cuid())
+
   workflowId  String
   workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 
@@ -133,8 +160,34 @@ model Connection {
 
   fromOutput  String @default("main")
   toInput     String @default("main")
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@unique([workflowId, fromNodeId, fromOutput, toNodeId, toInput])
+}
+
+enum ExecutionStatus{
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+model Execution {
+  id             String   @id @default(cuid())
+
+  workflowId String
+  workflow Workflow@relation(fields:[workflowId], references:[id], onDelete: Cascade)
+
+  status ExecutionStatus @default(RUNNING)
+  error  String? @db.Text
+  errorStack String? @db.Text
+
+
+  startedAt      DateTime @default(now())
+  completedAt    DateTime?
+
+  inngestEventId String   @unique
+
+  output         Json?
 }

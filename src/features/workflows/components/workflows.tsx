@@ -1,19 +1,33 @@
 "use client";
 
-import {  EntityContainer, EntityHeader, EntityItem, EntityList, EntityPagination, EntitySearch, ErrorView, LoadingView } from "@/components/entity-components";
-import { useCreateWorkflow, useRemoveWorkflow, useSuspenseWorkflows } from "../hooks/use-workflows";
+import {
+  EntityContainer,
+  EntityHeader,
+  EntityItem,
+  EntityList,
+  EntityPagination,
+  EntitySearch,
+  ErrorView,
+  LoadingView,
+  EmptyView,
+} from "@/components/entity-components";
+import {
+  useCreateWorkflow,
+  useRemoveWorkflow,
+  useWorkflows,
+} from "../hooks/use-workflows";
 import { useUpgradeModal } from "../hooks/use-upgrade-modal";
 import { useRouter } from "next/navigation";
 import { useWorkflowsParams } from "../hooks/use-workflows-params";
 import { useEntitySearch } from "@/hooks/use-entity-search";
-import { EmptyView } from "@/components/entity-components";
 import type { Workflow } from "@/generated/prisma/client";
-import {  WorkflowIcon } from "lucide-react";
-import {formatDistanceToNow } from "date-fns";
+import { WorkflowIcon } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { useEffect, useState } from "react";
 
 export const WorkflowsSearch = () => {
-  const [params,setParams]=useWorkflowsParams();
-  const {searchValue,onSearchChange}=useEntitySearch({
+  const [params, setParams] = useWorkflowsParams();
+  const { searchValue, onSearchChange } = useEntitySearch({
     params: { search: params.search, page: params.page },
     setParams,
   });
@@ -25,18 +39,38 @@ export const WorkflowsSearch = () => {
     />
   );
 };
-export const WorkflowsList = () => {
-  const [workflows] = useSuspenseWorkflows(); // ✔ FIX
 
-  return(
+export const WorkflowsList = () => {
+  const { data: workflows, isLoading, error } = useWorkflows();
+
+  // Ensure server and client render the same initial HTML to avoid
+  // hydration mismatches between the loading and empty states.
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    return <WorkflowsLoadingView />;
+  }
+
+  if (isLoading && !workflows) {
+    return <WorkflowsLoadingView />;
+  }
+
+  if (error) {
+    return <WorkflowsErrorView />;
+  }
+
+  return (
     <EntityList
-    items={workflows.items}
-    renderItem={(workflow) => <WorkflowItem  data={workflow} />}
-    getKey={(workflow) => workflow.id}
-    emptyView={<WorkflowsEmptyView />}
+      items={workflows?.items ?? []}
+      renderItem={(workflow) => <WorkflowItem data={workflow} />}
+      getKey={(workflow) => workflow.id}
+      emptyView={<WorkflowsEmptyView />}
     />
-  )
- 
+  );
 };
 
 export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
@@ -69,17 +103,26 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
 };
 
 export const WorkflowsPagination = () => {
-  const [workflows, query] = useSuspenseWorkflows();
-  const [params,setParams]=useWorkflowsParams();
-  return(
-    <EntityPagination 
-    disabled={query.isFetching}
-    page={workflows.page}
-    totalPages={workflows.totalPages}
-    onPageChange={(page)=>setParams({...params,page})}
+  const { data: workflows, isFetching } = useWorkflows();
+  const [params, setParams] = useWorkflowsParams();
+  const [hasMounted, setHasMounted] = useState(false);
+
+  // Avoid hydration mismatches by only rendering pagination after mount
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted || !workflows) return null;
+
+  return (
+    <EntityPagination
+      disabled={isFetching}
+      page={workflows.page}
+      totalPages={workflows.totalPages}
+      onPageChange={(page) => setParams({ ...params, page })}
     />
-  )
-}
+  );
+};
 
 
 export const WorkflowsContainer = ({

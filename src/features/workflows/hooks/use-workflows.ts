@@ -16,6 +16,9 @@ export type WorkflowGraph = {
 
 /**
  * Hook to fetch all workflows using suspense
+ *
+ * ⚠️ Intended for SERVER components only. Using this in client components
+ * can cause render / fetch loops.
  */
 export const useSuspenseWorkflows = () => {
   const [params] = useWorkflowsParams();
@@ -27,6 +30,21 @@ export const useSuspenseWorkflows = () => {
   };
 
   return trpc.workflows.getMany.useSuspenseQuery(safeParams);
+};
+
+/**
+ * Client-safe hook for workflows list (non-Suspense).
+ */
+export const useWorkflows = () => {
+  const [params] = useWorkflowsParams();
+
+  const safeParams = {
+    ...params,
+    page: Number(params.page) || 1,
+    pageSize: Number(params.pageSize) || 5,
+  };
+
+  return trpc.workflows.getMany.useQuery(safeParams);
 };
 
 /**

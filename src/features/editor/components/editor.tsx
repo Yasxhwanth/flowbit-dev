@@ -1,6 +1,20 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge, type Node, type Edge, type NodeChange, type EdgeChange, type Connection, Background, Controls, MiniMap, Panel } from "@xyflow/react"
+import {
+  ReactFlow,
+  applyNodeChanges,
+  applyEdgeChanges,
+  addEdge,
+  type Node,
+  type Edge,
+  type NodeChange,
+  type EdgeChange,
+  type Connection,
+  Background,
+  Controls,
+  MiniMap,
+  Panel,
+} from "@xyflow/react";
 import { ErrorView, LoadingView } from "@/components/entity-components";
 import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
 import "@xyflow/react/dist/style.css";
@@ -11,7 +25,6 @@ import { editorAtom } from "./store/atoms";
 import { NodeType } from "@/generated/prisma/enums";
 import { ExecuteWorkflowButton } from "./execute-workflow-button";
 
-
 export const EditorLoading = () => {
   return <LoadingView message="Loading editor..." />;
 };
@@ -20,26 +33,53 @@ export const EditorError = () => {
   return <ErrorView message="Error loading editor" />;
 };
 
+const createInitialNode = (): Node => ({
+  id:
+    typeof crypto !== "undefined"
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2),
+  type: NodeType.INITIAL,
+  position: { x: 0, y: 0 },
+  data: {},
+});
+
+const normalizeNodes = (nodes: Node[]): Node[] => {
+  // If there is at least one non-initial node, drop all INITIAL nodes (the "+" placeholder)
+  const hasRealNode = nodes.some((node) => node.type !== NodeType.INITIAL);
+
+  if (hasRealNode) {
+    return nodes.filter((node) => node.type !== NodeType.INITIAL);
+  }
+
+  // If there are no nodes at all, add a placeholder initial node
+  if (nodes.length === 0) {
+    return [createInitialNode()];
+  }
+
+  return nodes;
+};
 
 export const Editor = ({ workflowId }: { workflowId: string }) => {
   const workflow = useSuspenseWorkflow(workflowId);
 
   const setEditor = useSetAtom(editorAtom);
 
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
 
-
-
-  const [nodes, setNodes] = useState<Node[]>(workflow?.nodes ?? []);
-  const [edges, setEdges] = useState<Edge[]>(workflow?.edges ?? []);
-
+  // Initialize from server once per workflow id (don't overwrite local edits on refetch)
   useEffect(() => {
-    setNodes(workflow?.nodes ?? []);
+    const initialNodes = workflow?.nodes ?? [];
+    setNodes(normalizeNodes(initialNodes));
     setEdges(workflow?.edges ?? []);
-  }, [workflow?.nodes, workflow?.edges]);
+  }, [workflowId]);
 
 
   const onNodesChange = useCallback(
-    (changes: NodeChange[]) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
+    (changes: NodeChange[]) =>
+      setNodes((nodesSnapshot) =>
+        normalizeNodes(applyNodeChanges(changes, nodesSnapshot)),
+      ),
     [],
   );
   const onEdgesChange = useCallback(

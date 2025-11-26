@@ -110,8 +110,9 @@ export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProps
     }
 
     setNodes((nodes) => {
-      const hasInitialTrigger = nodes.some(
-        (node) => node.type === NodeType.INITIAL,
+      // Always drop any INITIAL ("plus") nodes once the user adds a real node
+      const cleanedNodes = nodes.filter(
+        (node) => node.type !== NodeType.INITIAL,
       );
 
       const centerX = window.innerWidth / 2;
@@ -129,18 +130,7 @@ export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProps
         data: {},
       };
 
-      if (hasInitialTrigger) {
-        return [...nodes, newNode];
-      }
-
-      const initialNode = {
-        id: createId(),
-        type: NodeType.INITIAL,
-        position: { x: flowPosition.x - 240, y: flowPosition.y },
-        data: {},
-      };
-
-      return [...nodes, initialNode, newNode];
+      return [...cleanedNodes, newNode];
     });
     onOpenChange(false);
 

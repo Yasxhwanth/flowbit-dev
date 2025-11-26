@@ -14,6 +14,7 @@ type GeminiNodeData = {
   systemPrompt?: string;
   userPrompt?: string;
   variableName?: string;
+  credentialId?: string;
 };
 
 type GeminiNodeType = Node<GeminiNodeData>;
@@ -65,6 +66,7 @@ export const GeminiNode = memo((props: NodeProps<GeminiNodeType>) => {
         defaultSystemPrompt={geminiNodeData.systemPrompt}
         defaultUserPrompt={geminiNodeData.userPrompt}
         defaultVariableName={geminiNodeData.variableName}
+        defaultCredentialId={geminiNodeData.credentialId}
       />
 
       <BaseExecutionNode

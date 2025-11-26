@@ -13,6 +13,7 @@ type AnthropicNodeData = {
   variableName?: string;
   systemPrompt?: string;
   userPrompt?: string;
+  credentialId?: string;
 };
 
 type AnthropicNodeType = Node<AnthropicNodeData>;
@@ -52,6 +53,7 @@ export const AnthropicNode = memo((props: NodeProps<AnthropicNodeType>) => {
         onOpenChange={setOpen}
         onSubmit={handleSubmit}
         defaultVariableName={data.variableName}
+        defaultCredentialId={data.credentialId}
         defaultSystemPrompt={data.systemPrompt}
         defaultUserPrompt={data.userPrompt}
       />

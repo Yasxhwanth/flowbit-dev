@@ -1,17 +1,41 @@
-import { checkout,polar,portal} from "@polar-sh/better-auth"
+import { checkout, polar, portal } from "@polar-sh/better-auth";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db";
-import {polarClient} from "./polar";
+import { polarClient } from "./polar";
 
+function getBaseURL() {
+  // Use BETTER_AUTH_URL if set (for production)
+  if (process.env.BETTER_AUTH_URL) {
+    return process.env.BETTER_AUTH_URL;
+  }
+  // For Vercel deployments
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  // Default to localhost for development
+  return "http://localhost:3000";
+}
 
 export const auth = betterAuth({
-  database:prismaAdapter(prisma,{
-    provider:"postgresql",
+  baseURL: getBaseURL(),
+  basePath: "/api/auth",
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
   }),
-  emailAndPassword:{
-    enabled:true,
-    autoSignIn:true,
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: true,
+  },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+    },
   },
   plugins: [
     polar({
@@ -25,8 +49,8 @@ export const auth = betterAuth({
               slug: "pro",
             },
           ],
-          successUrl:process.env.POLAR_SUCCESS_URL,
-          authenticatedUsersOnly:true,
+          successUrl: process.env.POLAR_SUCCESS_URL,
+          authenticatedUsersOnly: true,
         }),
         portal(),
       ],

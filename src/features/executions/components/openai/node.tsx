@@ -15,6 +15,7 @@ type OpenAINodeData = {
   userPrompt?: string;
   variableName?: string;
   model?: string;
+  credentialId?: string;
 };
 
 type OpenAINodeType = Node<OpenAINodeData>;
@@ -66,6 +67,7 @@ export const OpenAINode = memo((props: NodeProps<OpenAINodeType>) => {
         defaultSystemPrompt={nodeData.systemPrompt}
         defaultUserPrompt={nodeData.userPrompt}
         defaultVariableName={nodeData.variableName}
+        defaultCredentialId={nodeData.credentialId}
       />
       <BaseExecutionNode
         {...props}
