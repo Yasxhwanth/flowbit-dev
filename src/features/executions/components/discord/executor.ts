@@ -4,10 +4,10 @@ import Handlebars from "handlebars";
 import { discordChannel } from "@/inngest/channels/discord";
 
 type DiscordNodeData = {
-  variableName?: string;
   webhookUrl?: string;
   content?: string;
   username?: string;
+  variableName?: string; // optional, but handled safely
 };
 
 export const discordExecutor: NodeExecutor<DiscordNodeData> = async ({
@@ -25,23 +25,32 @@ export const discordExecutor: NodeExecutor<DiscordNodeData> = async ({
   );
 
   if (!data.webhookUrl) {
-    await publish(discordChannel().status({ nodeId, status: "error" }));
     throw new NonRetriableError("Webhook URL is required");
   }
+
   if (!data.content) {
-    await publish(discordChannel().status({ nodeId, status: "error" }));
     throw new NonRetriableError("Message content is required");
-  }
-  if (!data.variableName) {
-    await publish(discordChannel().status({ nodeId, status: "error" }));
-    throw new NonRetriableError("Variable name is required");
   }
 
   try {
-    const resolvedContent = Handlebars.compile(data.content)(context);
+    // Render template with Handlebars
+    let resolvedContent = Handlebars.compile(data.content)(context);
 
-    const payload: any = { content: resolvedContent };
-    if (data.username) payload.username = data.username;
+    // Must be a string
+    if (!resolvedContent || typeof resolvedContent !== "string") {
+      throw new NonRetriableError("Resolved message content is not a valid string");
+    }
+
+    // Discord max length is 2000 chars
+    resolvedContent = resolvedContent.slice(0, 2000);
+
+    const payload: any = {
+      content: resolvedContent,
+    };
+
+    if (data.username) {
+      payload.username = data.username;
+    }
 
     const result = await step.run("discord-webhook", async () => {
       const res = await fetch(data.webhookUrl!, {
@@ -50,9 +59,23 @@ export const discordExecutor: NodeExecutor<DiscordNodeData> = async ({
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error(`Discord webhook error: ${res.status}`);
+      // Not OK → read error body for debugging
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => "");
+        throw new Error(`Discord webhook error: ${res.status} - ${errorText}`);
+      }
 
-      return await res.json().catch(() => ({}));
+      // 204 No Content → return empty result
+      if (res.status === 204) {
+        return { success: true };
+      }
+
+      // Handle JSON response safely
+      try {
+        return await res.json();
+      } catch {
+        return { success: true };
+      }
     });
 
     await publish(
@@ -62,12 +85,13 @@ export const discordExecutor: NodeExecutor<DiscordNodeData> = async ({
       })
     );
 
+    // Optional variable assignment
     return {
       result: {
         ...context,
-        [data.variableName]: {
+        [data.variableName || "discord"]: {
           sent: true,
-          webhookResponse: result,
+          response: result,
         },
       },
     };
