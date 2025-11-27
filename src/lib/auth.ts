@@ -4,29 +4,52 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "@/lib/db";
 import { polarClient } from "./polar";
 
-function getBaseURL() {
-  // Use BETTER_AUTH_URL if set (for production)
+/**
+ * SERVER BASE URL — for BetterAuth backend routes
+ */
+function getServerBaseURL() {
+  // Production (explicit)
   if (process.env.BETTER_AUTH_URL) {
     return process.env.BETTER_AUTH_URL;
   }
-  // For Vercel deployments
+  // Production (Vercel environment)
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`;
   }
-  // Default to localhost for development
+  // Local dev
   return "http://localhost:3000";
 }
 
+/**
+ * CLIENT BASE URL — for BetterAuth client redirects
+ * MUST BE PUBLIC for the frontend to use.
+ */
+function getClientBaseURL() {
+  return (
+    process.env.NEXT_PUBLIC_BETTER_AUTH_URL ??
+    process.env.BETTER_AUTH_URL ??
+    "http://localhost:3000"
+  );
+}
+
 export const auth = betterAuth({
-  baseURL: getBaseURL(),
+  // server must use the server-side base URL
+  baseURL: getServerBaseURL(),
+
+  // client must know the public URL (this is the missing part!)
+  publicBaseURL: getClientBaseURL(),
+
   basePath: "/api/auth",
+
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
   },
+
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -37,6 +60,7 @@ export const auth = betterAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     },
   },
+
   plugins: [
     polar({
       client: polarClient,
