@@ -22,7 +22,7 @@ import { nodeComponents } from "@/config/node-components";
 import { AddNodeButton } from "./add-node-button";
 import { useSetAtom } from "jotai";
 import { editorAtom } from "./store/atoms";
-import { NodeType } from "@prisma/client";
+// NodeType enum imported via Prisma client is not available; using string literals instead
 import { ExecuteWorkflowButton } from "./execute-workflow-button";
 
 export const EditorLoading = () => {
@@ -38,17 +38,17 @@ const createInitialNode = (): Node => ({
     typeof crypto !== "undefined"
       ? crypto.randomUUID()
       : Math.random().toString(36).slice(2),
-  type: NodeType.INITIAL,
+  type: "INITIAL",
   position: { x: 0, y: 0 },
   data: {},
 });
 
 const normalizeNodes = (nodes: Node[]): Node[] => {
   // If there is at least one non-initial node, drop all INITIAL nodes (the "+" placeholder)
-  const hasRealNode = nodes.some((node) => node.type !== NodeType.INITIAL);
+  const hasRealNode = nodes.some((node) => node.type !== "INITIAL");
 
   if (hasRealNode) {
-    return nodes.filter((node) => node.type !== NodeType.INITIAL);
+    return nodes.filter((node) => node.type !== "INITIAL");
   }
 
   // If there are no nodes at all, add a placeholder initial node
@@ -92,7 +92,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   );
 
   const hasManualTrigger = useMemo(() => {
-    return nodes.some((node) => node.type === NodeType.MANUAL_TRIGGER);
+    return nodes.some((node) => node.type === "MANUAL_TRIGGER");
   }, [nodes]);
 
 
