@@ -8,14 +8,26 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import {   Card,   CardContent,   CardDescription,   CardHeader,   CardTitle, } from "@/components/ui/card";
-import { Form,FormControl,FormField,FormItem,FormLabel,FormMessage,} from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {cn} from "@/lib/utils"; //import {authclient}from "@/lib/authclient"; 
+import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 
 const loginSchema = z.object({
-  // original code used `z.email(...)` which is invalid; keep imports but fix schema shape
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required"),
 });
@@ -34,18 +46,21 @@ export function LoginForm() {
   });
 
   const onSubmit = async (values: LoginFormValues) => {
-    await authClient.signIn.email({
-      email: values.email,
-      password: values.password,
-      callbackURL: "/",
-    }, {
-      onSuccess: () => {
-        router.push("/");
+    await authClient.signIn.email(
+      {
+        email: values.email,
+        password: values.password,
+        callbackURL: "/",
       },
-      onError: (ctx) => {
-        toast.error(ctx.error.message);
-      },
-    });
+      {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message);
+        },
+      }
+    );
   };
 
   const isPending = form.formState.isSubmitting;
@@ -54,18 +69,12 @@ export function LoginForm() {
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader className="text-center">
-          <CardTitle>
-            Welcome back
-          </CardTitle>
-          <CardDescription>
-            Login to continue
-          </CardDescription>
+          <CardTitle>Welcome back</CardTitle>
+          <CardDescription>Login to continue</CardDescription>
         </CardHeader>
+
         <CardContent>
-          {/* Use the project's Form wrapper only to pass form props safely */}
           <Form {...form}>
-            {/* The project's Form wrapper can be used, but the inner <form> must be a valid element
-                and we must not leave incomplete JSX (that was causing runtime errors). */}
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <FormField
                 control={form.control}
@@ -88,7 +97,11 @@ export function LoginForm() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input placeholder="Password" type="password" {...field} />
+                      <Input
+                        placeholder="Password"
+                        type="password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -119,44 +132,51 @@ export function LoginForm() {
                 <span className="h-px flex-1 bg-muted" />
               </div>
 
-              <div className="flex flex-col gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full flex items-center justify-center gap-2"
-                  onClick={() =>
-                    authClient.signIn.social(
-                      { provider: "google", callbackURL: "/" },
-                      {
-                        onError: (ctx) => toast.error(ctx.error.message),
+              {/* Google */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() =>
+                  authClient.signIn.social(
+                    { provider: "google", callbackURL: "/" },
+                    {
+                      onError: (ctx) => {
+                        toast.error(ctx.error.message);
                       },
-                    )
-                  }
-                >
-                  <Image src="/google.svg" width={20} height={20} alt="Google"/>
-                  <span className="whitespace-nowrap">Continue with Google</span>
-                </Button>
+                    }
+                  )
+                }
+              >
+                <Image src="/google.svg" width={20} height={20} alt="Google" />
+                <span className="whitespace-nowrap">Continue with Google</span>
+              </Button>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full flex items-center justify-center gap-2"
-                  onClick={() =>
-                    authClient.signIn.social(
-                      { provider: "github", callbackURL: "/" },
-                      {
-                        onError: (ctx) => toast.error(ctx.error.message),
+              {/* GitHub */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() =>
+                  authClient.signIn.social(
+                    { provider: "github", callbackURL: "/" },
+                    {
+                      onError: (ctx) => {
+                        toast.error(ctx.error.message);
                       },
-                    )
-                  }
-                >
-                  <Image src="/github.svg" width={20} height={20} alt="GitHub" />
-                  <span className="whitespace-nowrap">Continue with GitHub</span>
-                </Button>
-              </div>
+                    }
+                  )
+                }
+              >
+                <Image src="/github.svg" width={20} height={20} alt="GitHub" />
+                <span className="whitespace-nowrap">Continue with GitHub</span>
+              </Button>
 
               <p className="text-center text-sm">
-                Don&apos;t have an account? <Link href="/signup" className="font-medium hover:underline">Sign up</Link>
+                Don&apos;t have an account?{" "}
+                <Link href="/signup" className="font-medium hover:underline">
+                  Sign up
+                </Link>
               </p>
             </form>
           </Form>
@@ -165,5 +185,6 @@ export function LoginForm() {
     </div>
   );
 }
+
 
 

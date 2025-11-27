@@ -8,23 +8,35 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import {   Card,   CardContent,   CardDescription,   CardHeader,   CardTitle, } from "@/components/ui/card";
-import { Form,FormControl,FormField,FormItem,FormLabel,FormMessage,} from "@/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {cn} from "@/lib/utils"; //import {authclient}from "@/lib/authclient"; 
+import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 
-const registerSchema = z.object({
-  // original code used `z.email(...)` which is invalid; keep imports but fix schema shape
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
-  confirmPassword: z.string(),
-})
-.refine((data)=> data.password ===data.confirmPassword,{
-    message:"Passwords do not match",
-  path:["confirmPassword"],
-});
-
+const registerSchema = z
+  .object({
+    email: z.string().email("Please enter a valid email address"),
+    password: z.string().min(1, "Password is required"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -42,23 +54,22 @@ export function RegisterForm() {
 
   const onSubmit = async (values: RegisterFormValues) => {
     await authClient.signUp.email(
-        {
-            name:values.email,
-            email:values.email,
-            password:values.password,
-            callbackURL:"/",
+      {
+        name: values.email,
+        email: values.email,
+        password: values.password,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
+          router.push("/");
         },
-        {
-            onSuccess:() =>{
-                router.push("/");
-
-            },
-            onError:(ctx) =>{
-                toast.error(ctx.error.message);
-            }
-        }
-    )
-};
+        onError: (ctx) => {
+          toast.error(ctx.error.message); // must not return value
+        },
+      }
+    );
+  };
 
   const isPending = form.formState.isSubmitting;
 
@@ -66,18 +77,12 @@ export function RegisterForm() {
     <div className="flex flex-col gap-6">
       <Card>
         <CardHeader className="text-center">
-          <CardTitle>
-            Get Started
-          </CardTitle>
-          <CardDescription>
-            Create your account to get started
-          </CardDescription>
+          <CardTitle>Get Started</CardTitle>
+          <CardDescription>Create your account to get started</CardDescription>
         </CardHeader>
+
         <CardContent>
-          {/* Use the project's Form wrapper only to pass form props safely */}
           <Form {...form}>
-            {/* The project's Form wrapper can be used, but the inner <form> must be a valid element
-                and we must not leave incomplete JSX (that was causing runtime errors). */}
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <FormField
                 control={form.control}
@@ -100,20 +105,21 @@ export function RegisterForm() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input placeholder="Password" type="password" {...field} />
+                      <Input type="password" placeholder="Password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-                    <FormField
+
+              <FormField
                 control={form.control}
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
-                      <Input placeholder="Password" type="password" {...field} />
+                      <Input type="password" placeholder="Password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -122,10 +128,7 @@ export function RegisterForm() {
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 text-sm select-none">
-                  <input
-                    type="checkbox"
-                    className={cn("h-4 w-4 rounded border")}
-                  />
+                  <input type="checkbox" className={cn("h-4 w-4 rounded border")} />
                   Remember me
                 </label>
 
@@ -135,7 +138,7 @@ export function RegisterForm() {
               </div>
 
               <Button type="submit" className="w-full" disabled={isPending}>
-                {isPending ? "Signing in..." : "Sign in"}
+                {isPending ? "Creating..." : "Create Account"}
               </Button>
 
               <div className="flex items-center gap-2 pt-2">
@@ -144,44 +147,51 @@ export function RegisterForm() {
                 <span className="h-px flex-1 bg-muted" />
               </div>
 
-              <div className="flex flex-col gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full flex items-center justify-center gap-2"
-                  onClick={() =>
-                    authClient.signIn.social(
-                      { provider: "google", callbackURL: "/" },
-                      {
-                        onError: (ctx) => toast.error(ctx.error.message),
+              {/* Google */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() =>
+                  authClient.signIn.social(
+                    { provider: "google", callbackURL: "/" },
+                    {
+                      onError: (ctx) => {
+                        toast.error(ctx.error.message);
                       },
-                    )
-                  }
-                >
-                  <Image src="/google.svg" width={20} height={20} alt="Google"/>
-                  <span className="whitespace-nowrap">Continue with Google</span>
-                </Button>
+                    }
+                  )
+                }
+              >
+                <Image src="/google.svg" width={20} height={20} alt="Google" />
+                <span className="whitespace-nowrap">Continue with Google</span>
+              </Button>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full flex items-center justify-center gap-2"
-                  onClick={() =>
-                    authClient.signIn.social(
-                      { provider: "github", callbackURL: "/" },
-                      {
-                        onError: (ctx) => toast.error(ctx.error.message),
+              {/* GitHub */}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() =>
+                  authClient.signIn.social(
+                    { provider: "github", callbackURL: "/" },
+                    {
+                      onError: (ctx) => {
+                        toast.error(ctx.error.message);
                       },
-                    )
-                  }
-                >
-                  <Image src="/github.svg" width={20} height={20} alt="GitHub" />
-                  <span className="whitespace-nowrap">Continue with GitHub</span>
-                </Button>
-              </div>
+                    }
+                  )
+                }
+              >
+                <Image src="/github.svg" width={20} height={20} alt="GitHub" />
+                <span className="whitespace-nowrap">Continue with GitHub</span>
+              </Button>
 
               <p className="text-center text-sm">
-            Already have an account?{""} <Link href="/login" className="font-medium hover:underline">Signup</Link>
+                Already have an account?{" "}
+                <Link href="/login" className="font-medium hover:underline">
+                  Log in
+                </Link>
               </p>
             </form>
           </Form>
