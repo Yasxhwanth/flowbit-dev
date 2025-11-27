@@ -23,8 +23,8 @@ import { useEntitySearch } from "@/hooks/use-entity-search";
 import { useRouter } from "next/navigation";
 
 // Import type from existing enums file (safe for client components)
-import { CredentialType } from "@/generated/prisma/enums";
-export { CredentialType } from "@/generated/prisma/enums";
+import { CredentialType } from "@prisma/client";
+export { CredentialType } from "@prisma/client";
 
 // Define Credential type locally to avoid importing Prisma Client
 export interface Credential {

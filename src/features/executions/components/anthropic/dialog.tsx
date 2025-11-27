@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo } from "react";
-import { CredentialType } from "@/generated/prisma/enums";
+import { CredentialType } from "@prisma/client";
 import { useCredentialsByType } from "@/features/credentials/hooks/use-credentials";
 import {
   Select,

@@ -3,7 +3,7 @@
 import { trpc } from "@/trpc/client";
 import { toast } from "sonner";
 import superjson from "superjson";
-import { CredentialType } from "@/generated/prisma/enums";
+import { CredentialType } from "@prisma/client";
 import { useExecutionParams } from "./use-executions-params";
 
 /**

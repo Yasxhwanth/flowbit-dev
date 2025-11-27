@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { CredentialType } from "@/generated/prisma/enums";
+import { CredentialType } from "@prisma/client";
 import { useParams, useRouter } from "next/navigation";
 import {
   useCreateCredential,
