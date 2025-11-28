@@ -27,6 +27,7 @@ export const useSuspenseWorkflows = () => {
     ...params,
     page: Number(params.page) || 1,
     pageSize: Number(params.pageSize) || 5,
+    search: params.search || "",
   };
 
   return trpc.workflows.getMany.useSuspenseQuery(safeParams);
@@ -42,6 +43,7 @@ export const useWorkflows = () => {
     ...params,
     page: Number(params.page) || 1,
     pageSize: Number(params.pageSize) || 5,
+    search: params.search || "",
   };
 
   return trpc.workflows.getMany.useQuery(safeParams);
