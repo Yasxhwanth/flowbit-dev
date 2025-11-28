@@ -9,12 +9,12 @@ export const manualTriggerExecutor: NodeExecutor<ManualTriggerData> = async ({
   step,
   publish,
 }: NodeExecutorParams<ManualTriggerData>) => {
-    await publish(
-      manualTriggerChannel().status({
-        nodeId,
-        status: "loading",
-      }),
-    );
+  await publish(
+    manualTriggerChannel().status({
+      nodeId,
+      status: "loading",
+    }),
+  );
   // TODO: Publish "loading" state for manual trigger
 
   const result = await step.run("manual-trigger", async () => context);
@@ -27,5 +27,5 @@ export const manualTriggerExecutor: NodeExecutor<ManualTriggerData> = async ({
   );
 
   // TODO: Publish "success" state for manual trigger
-    return result;
+  return { result };
 };

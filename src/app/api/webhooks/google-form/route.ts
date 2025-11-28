@@ -1,5 +1,5 @@
+import { NextRequest, NextResponse } from "next/server";
 import { sendWorkflowExecution } from "@/inngest/utils";
-import  {type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,9 +9,11 @@ export async function POST(request: NextRequest) {
     if (!workflowId) {
       return NextResponse.json(
         { success: false, error: "Missing required query parameter: workflowId" },
-        { status: 400 },
+        { status: 400 }
       );
     }
+
+    // Parse Google Form webhook body
     const body = await request.json();
 
     const formData = {
@@ -20,23 +22,28 @@ export async function POST(request: NextRequest) {
       responseId: body.responseId,
       timestamp: body.timestamp,
       respondentEmail: body.respondentEmail,
-      responses: body.responses,
+      responses: body.responses ?? {},
       raw: body,
     };
 
+    // Trigger the workflow
     await sendWorkflowExecution({
       workflowId,
-        initialData:{
+      initialData: {
         googleForm: formData,
-        }
-    }); return NextResponse.json({ success: true },
-      { status: 200 },
+      },
+    });
+
+    return NextResponse.json(
+      { success: true, received: formData },
+      { status: 200 }
     );
+
   } catch (error) {
-    console.error("Google form webhook error:", error);
+    console.error("Google Form webhook error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to process Google Form submission" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
