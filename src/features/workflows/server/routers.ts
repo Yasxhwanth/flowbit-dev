@@ -167,6 +167,8 @@ export const workflowsRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { page, pageSize, search } = input;
+      console.log("🔍 getMany input:", input);
+      console.log("👤 getMany user:", ctx.auth.user.id);
 
       const [items, totalCount] = await Promise.all([
         prisma.workflow.findMany({
