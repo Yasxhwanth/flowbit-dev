@@ -19,13 +19,13 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
 
-     await sendWorkflowExecution({
+      await sendWorkflowExecution({
         workflowId: input.id,
-});
-      
+      });
+
       return workflow;
-}),
-  create: premiumProcedure.mutation(({ ctx }) => {
+    }),
+  create: protectedProcedure.mutation(({ ctx }) => {
     return prisma.workflow.create({
       data: {
         name: generateSlug(3),

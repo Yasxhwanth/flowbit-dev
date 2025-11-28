@@ -64,15 +64,18 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
 
   const setEditor = useSetAtom(editorAtom);
 
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
+  const [nodes, setNodes] = useState<Node[]>(() => {
+    const initialNodes = workflow?.nodes ?? [];
+    return normalizeNodes(initialNodes);
+  });
+  const [edges, setEdges] = useState<Edge[]>(() => workflow?.edges ?? []);
 
-  // Initialize from server once per workflow id (don't overwrite local edits on refetch)
+  // Sync with server data if workflowId changes (though usually this component remounts)
   useEffect(() => {
     const initialNodes = workflow?.nodes ?? [];
     setNodes(normalizeNodes(initialNodes));
     setEdges(workflow?.edges ?? []);
-  }, [workflowId]);
+  }, [workflowId, workflow]);
 
 
   const onNodesChange = useCallback(
