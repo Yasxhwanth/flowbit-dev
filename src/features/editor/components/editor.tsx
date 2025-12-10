@@ -98,6 +98,16 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
     return nodes.some((node) => node.type === "MANUAL_TRIGGER");
   }, [nodes]);
 
+  const isDirty = useMemo(() => {
+    const savedNodes = normalizeNodes(workflow?.nodes ?? []);
+    const savedEdges = workflow?.edges ?? [];
+
+    return (
+      JSON.stringify(nodes) !== JSON.stringify(savedNodes) ||
+      JSON.stringify(edges) !== JSON.stringify(savedEdges)
+    );
+  }, [workflow, nodes, edges]);
+
 
   return (
 
@@ -126,7 +136,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         </Panel>
         {hasManualTrigger && (
           <Panel position="bottom-center">
-            <ExecuteWorkflowButton workflowId={workflowId} />
+            <ExecuteWorkflowButton workflowId={workflowId} isDirty={isDirty} />
           </Panel>
         )}
       </ReactFlow>

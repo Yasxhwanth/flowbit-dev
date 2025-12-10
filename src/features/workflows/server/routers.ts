@@ -75,6 +75,15 @@ export const workflowsRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       return await prisma.$transaction(async (tx) => {
+        // Verify workflow ownership before updating
+        const workflow = await tx.workflow.findUnique({
+          where: { id: input.id, userId: ctx.auth.user.id },
+        });
+
+        if (!workflow) {
+          throw new Error("Workflow not found or access denied");
+        }
+
         await tx.node.deleteMany({ where: { workflowId: input.id } });
 
         await tx.node.createMany({
@@ -103,7 +112,7 @@ export const workflowsRouter = createTRPCRouter({
         });
 
         await tx.workflow.update({
-          where: { id: input.id },
+          where: { id: input.id, userId: ctx.auth.user.id },
           data: { updatedAt: new Date() },
         });
 
@@ -167,8 +176,9 @@ export const workflowsRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { page, pageSize, search } = input;
-      console.log("🔍 getMany input:", input);
-      console.log("👤 getMany user:", ctx.auth.user.id);
+      const fs = await import('fs');
+      const logMsg = `[${new Date().toISOString()}] getMany - User: ${ctx.auth.user.id}, Search: "${search}", Page: ${page}\n`;
+      fs.appendFileSync('debug-log.txt', logMsg);
 
       const [items, totalCount] = await Promise.all([
         prisma.workflow.findMany({
@@ -187,6 +197,8 @@ export const workflowsRouter = createTRPCRouter({
           },
         }),
       ]);
+
+      fs.appendFileSync('debug-log.txt', `[${new Date().toISOString()}] Found ${items.length} items, Total: ${totalCount}\n`);
 
       const totalPages = Math.ceil(totalCount / pageSize);
 

@@ -16,6 +16,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Workflow } from "@prisma/client";
+import { authClient } from "@/lib/auth-client";
 
 import { useWorkflowsParams } from "../hooks/use-workflows-params";
 import { useEntitySearch } from "@/hooks/use-entity-search";
@@ -137,6 +138,7 @@ export const WorkflowsEmptyView = () => {
   const createWorkflow = useCreateWorkflow();
   const { handleError, modal } = useUpgradeModal();
   const router = useRouter();
+  const { data: session } = authClient.useSession();
 
   const handleCreate = () => {
     createWorkflow.mutate(undefined, {
@@ -156,6 +158,9 @@ export const WorkflowsEmptyView = () => {
         onNew={handleCreate}
         message="You haven't created any workflows yet. Get started by creating a new workflow."
       />
+      <div className="text-center text-xs text-muted-foreground mt-2">
+        Debug: Logged in as {session?.user?.email} ({session?.user?.id})
+      </div>
     </>
   );
 };
