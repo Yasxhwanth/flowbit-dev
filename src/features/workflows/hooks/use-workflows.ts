@@ -10,6 +10,12 @@ import type { Node, Edge } from "@xyflow/react";
 export type WorkflowGraph = {
   id: string;
   name: string;
+  description?: string | null;
+  enabled?: boolean;
+  defaultBroker?: string | null;
+  defaultSymbol?: string | null;
+  defaultInterval?: string | null;
+  cron?: string | null;
   nodes: Node[];
   edges: Edge[];
 };

@@ -109,6 +109,36 @@ model Workflow {
 
   userId String
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enabled Boolean @default(true)
+  
+  // Settings fields
+  description     String?
+  defaultBroker   String?
+  defaultSymbol   String?
+  defaultInterval String?
+  cron            String?
+  tags            String[] @default([])
+  
+  versions        WorkflowVersion[]
+}
+
+model WorkflowVersion {
+  id          String   @id @default(cuid())
+  workflowId  String
+  createdAt   DateTime @default(now())
+  comment     String?
+  nodes       Json
+  edges       Json
+
+  workflow    Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+
+model ExecutionExplanation {
+  id          String   @id @default(cuid())
+  executionId String   @unique
+  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  explanation Json
+  createdAt   DateTime @default(now())
 }
 
 enum NodeType {
@@ -122,6 +152,11 @@ enum NodeType {
   OPENAI
   DISCORD
   SLACK
+  CONDITION
+  CANDLES
+  INDICATORS
+  ORDER
+  NOTIFY
 }
 
 model Node {
@@ -190,4 +225,29 @@ model Execution {
   inngestEventId String   @unique
 
   output         Json?
+  
+  explanation    ExecutionExplanation?
+}
+
+model BrokerCredential {
+  id        String   @id @default(cuid())
+  userId    String
+  broker    String   // "dhan" | "fyers" | "angel"
+  encrypted String   // encrypted JSON payload
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, broker])
+  @@map("broker_credential")
+}
+
+model BacktestRun {
+  id           String   @id @default(cuid())
+  userId       String
+  createdAt    DateTime @default(now())
+  workflowJson Json     // Workflow graph
+  params       Json     // Backtest request params
+  result       Json     // BacktestResult (trades, equityCurve, metrics, logs)
+
+  @@map("backtest_run")
 }

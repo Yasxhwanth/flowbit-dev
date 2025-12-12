@@ -84,7 +84,36 @@ const executionNodes: NodeTypeOption[] = [
     description: "Send messages to Slack channels using a webhook",
     icon: "/slack.svg",
   },
-  
+  {
+    type: NodeType.CANDLES,
+    label: "Candles",
+    description: "Fetch OHLCV market data",
+    icon: GlobeIcon, // Placeholder
+  },
+  {
+    type: NodeType.INDICATORS,
+    label: "Indicators",
+    description: "Calculate technical indicators",
+    icon: GlobeIcon, // Placeholder
+  },
+  {
+    type: NodeType.CONDITION,
+    label: "Condition",
+    description: "Evaluate logic conditions",
+    icon: GlobeIcon, // Placeholder
+  },
+  {
+    type: NodeType.ORDER,
+    label: "Order",
+    description: "Place buy/sell orders",
+    icon: GlobeIcon, // Placeholder
+  },
+  {
+    type: NodeType.NOTIFY,
+    label: "Notify",
+    description: "Send notifications",
+    icon: GlobeIcon, // Placeholder
+  },
 ];
 
 interface NodeSelectorProps {
@@ -94,7 +123,7 @@ interface NodeSelectorProps {
 }
 
 export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProps) {
-  const {setNodes,getNodes,screenToFlowPosition}=useReactFlow();
+  const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
   const handleNodeSelect = useCallback((selection: NodeTypeOption) => {
     // Check if trying to add a manual trigger when one already exists
     if (selection.type === NodeType.MANUAL_TRIGGER) {
@@ -102,7 +131,7 @@ export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProps
       const hasManualTrigger = nodes.some(
         (node) => node.type === NodeType.MANUAL_TRIGGER,
       );
-  
+
       if (hasManualTrigger) {
         toast.error("Only one manual trigger is allowed per workflow");
         return;
@@ -213,7 +242,7 @@ export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProps
             );
           })}
         </div>
-        
+
       </SheetContent>
     </Sheet>
   );

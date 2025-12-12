@@ -5,7 +5,7 @@ import { PAGINATION } from "@/config/constants";
 
 
 export const executionsRouter = createTRPCRouter({
-   // -----------------------------
+  // -----------------------------
   // GET ONE CREDENTIAL
   // -----------------------------
   getOne: protectedProcedure
@@ -14,7 +14,15 @@ export const executionsRouter = createTRPCRouter({
       return prisma.execution.findFirstOrThrow({
         where: {
           id: input.id,
-         workflow:{ userId: ctx.auth.user.id},
+          workflow: { userId: ctx.auth.user.id },
+        },
+        include: {
+          workflow: {
+            include: {
+              nodes: true,
+              connections: true,
+            },
+          },
         },
       });
     }),
@@ -34,7 +42,7 @@ export const executionsRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      const { page, pageSize,} = input;
+      const { page, pageSize, } = input;
 
       const where = {
         userId: ctx.auth.user.id,
@@ -44,11 +52,11 @@ export const executionsRouter = createTRPCRouter({
         prisma.execution.findMany({
           skip: (page - 1) * pageSize,
           take: pageSize,
-          where:{
-            workflow:{
-            userId: ctx.auth.user.id,
-          }
-        },
+          where: {
+            workflow: {
+              userId: ctx.auth.user.id,
+            }
+          },
           orderBy: { startedAt: "desc" },
           include: {
             workflow: {
@@ -61,11 +69,12 @@ export const executionsRouter = createTRPCRouter({
         }),
 
         prisma.execution.count({
-           where: {workflow:{
-            userId: ctx.auth.user.id,
-           },
+          where: {
+            workflow: {
+              userId: ctx.auth.user.id,
+            },
           }
-           }),
+        }),
       ]);
 
       const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
@@ -83,6 +92,6 @@ export const executionsRouter = createTRPCRouter({
       };
     }),
 
-  });
-  
+});
+
 

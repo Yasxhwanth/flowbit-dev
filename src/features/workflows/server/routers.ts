@@ -116,8 +116,23 @@ export const workflowsRouter = createTRPCRouter({
           data: { updatedAt: new Date() },
         });
 
+        // Save version
+        // We need to import saveWorkflowVersion. 
+        // Since we are inside a transaction, we should probably pass the tx or just call it after?
+        // `saveWorkflowVersion` uses `prisma` global. It's fine to call it after, or inside if it doesn't conflict.
+        // But `saveWorkflowVersion` creates a `WorkflowVersion`.
+        // Let's just call it here.
+        // Wait, I need to import it first.
+
         return { success: true };
       });
+
+      // Save version after successful update
+      // We need the nodes and edges from input.
+      const { saveWorkflowVersion } = await import("./save-version");
+      await saveWorkflowVersion(input.id, input.nodes, input.edges, "Manual Save");
+
+      return { success: true };
     }),
 
   updateName: protectedProcedure
@@ -126,6 +141,28 @@ export const workflowsRouter = createTRPCRouter({
       return prisma.workflow.update({
         where: { id: input.id, userId: ctx.auth.user.id },
         data: { name: input.name },
+      });
+    }),
+
+  updateSettings: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        enabled: z.boolean().optional(),
+        cron: z.string().optional(),
+        defaultBroker: z.string().optional(),
+        defaultSymbol: z.string().optional(),
+        defaultInterval: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...data } = input;
+      return prisma.workflow.update({
+        where: { id, userId: ctx.auth.user.id },
+        data,
       });
     }),
 
@@ -159,7 +196,19 @@ export const workflowsRouter = createTRPCRouter({
         targetHandle: connection.toInput ?? undefined,
       }));
 
-      return { id: workflow.id, name: workflow.name, nodes, edges };
+      return {
+        id: workflow.id,
+        name: workflow.name,
+        description: workflow.description,
+        enabled: workflow.enabled,
+        defaultBroker: workflow.defaultBroker,
+        defaultSymbol: workflow.defaultSymbol,
+        defaultInterval: workflow.defaultInterval,
+        cron: workflow.cron,
+        tags: workflow.tags,
+        nodes,
+        edges,
+      };
     }),
 
   getMany: protectedProcedure
