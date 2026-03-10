@@ -20,7 +20,11 @@ import { authClient } from "@/lib/auth-client";
 
 import { useWorkflowsParams } from "../hooks/use-workflows-params";
 import { useEntitySearch } from "@/hooks/use-entity-search";
-import { useWorkflows, useCreateWorkflow, useRemoveWorkflow } from "../hooks/use-workflows";
+import {
+  useWorkflows,
+  useCreateWorkflow,
+  useRemoveWorkflow,
+} from "../hooks/use-workflows";
 import { useUpgradeModal } from "../hooks/use-upgrade-modal";
 
 // Search component for workflows
@@ -114,7 +118,11 @@ export const WorkflowsPagination = () => {
   );
 };
 
-export const WorkflowsContainer = ({ children }: { children: React.ReactNode }) => {
+export const WorkflowsContainer = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   return (
     <EntityContainer
       header={<WorkflowsHeader />}
@@ -178,7 +186,8 @@ export const WorkflowItem = ({ data }: { data: Workflow }) => {
       subtitle={
         <>
           Updated {formatDistanceToNow(data.updatedAt, { addSuffix: true })}
-          &bull; Created {formatDistanceToNow(data.createdAt, { addSuffix: true })}
+          &bull; Created{" "}
+          {formatDistanceToNow(data.createdAt, { addSuffix: true })}
         </>
       }
       image={

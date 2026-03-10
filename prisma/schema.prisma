@@ -24,6 +24,22 @@ model User {
   accounts      Account[]
   workflows     Workflow[]
   credentials   Credential[]
+  
+  // Data Layer
+  dataEntities  DataEntity[] @relation("DataEntities")
+  dataSchemas   DataSchema[] @relation("DataSchemas")
+  dataConnectors DataConnector[] @relation("DataConnectors")
+  
+  // Governance
+  createdRoles  Role[] @relation("CreatedRoles")
+  userRoles     UserRole[] @relation("UserRoles")
+  createdTeams  Team[] @relation("CreatedTeams")
+  teamMemberships TeamMember[] @relation("TeamMemberships")
+  auditLogs     AuditLog[] @relation("AuditLogs")
+  
+  // Logic Layer
+  rules         Rule[] @relation("Rules")
+  algorithms    Algorithm[] @relation("Algorithms")
 
   @@unique([email])
   @@map("user")
@@ -95,6 +111,10 @@ enum CredentialType {
   OPENAI
   ANTHROPIC
   GEMINI
+  WHATSAPP
+  GMAIL
+  MYSQL
+  MONGODB
 }
 
 model Workflow {
@@ -106,6 +126,7 @@ model Workflow {
   nodes        Node[]
   connections  Connection[]
   executions Execution[]
+  approvals    Approval[]
 
   userId String
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -157,6 +178,13 @@ enum NodeType {
   INDICATORS
   ORDER
   NOTIFY
+  SCHEDULE
+  WAIT
+  CODE
+  WHATSAPP
+  GMAIL
+  MYSQL
+  MONGODB
 }
 
 model Node {
@@ -227,6 +255,8 @@ model Execution {
   output         Json?
   
   explanation    ExecutionExplanation?
+  steps          ExecutionStep[]
+  logs           ExecutionLog[]
 }
 
 model BrokerCredential {
@@ -251,3 +281,462 @@ model BacktestRun {
 
   @@map("backtest_run")
 }
+
+// ============================================================================
+// Data Layer - Unified Data Model
+// ============================================================================
+
+model DataEntity {
+  id          String   @id @default(cuid())
+  type        String   // Entity type (e.g., "Customer", "Order", "Product")
+  schemaId    String
+  schema      DataSchema @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+  properties  Json     // Entity properties as key-value pairs
+  metadata    Json?    // Tags, labels, custom metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  version     Int      @default(1)
+  
+  relationshipsFrom DataRelationship[] @relation("FromEntity")
+  relationshipsTo   DataRelationship[] @relation("ToEntity")
+  events            DataEvent[]
+  snapshots         EntitySnapshot[]
+  
+  userId String
+  user   User @relation("DataEntities", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([type])
+  @@index([schemaId])
+  @@index([userId])
+  @@map("data_entity")
+}
+
+model DataRelationship {
+  id          String   @id @default(cuid())
+  type        String   // Relationship type (e.g., "BELONGS_TO", "HAS_MANY")
+  fromEntityId String
+  fromEntity  DataEntity @relation("FromEntity", fields: [fromEntityId], references: [id], onDelete: Cascade)
+  toEntityId  String
+  toEntity    DataEntity @relation("ToEntity", fields: [toEntityId], references: [id], onDelete: Cascade)
+  properties  Json?    // Relationship properties
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([fromEntityId])
+  @@index([toEntityId])
+  @@index([type])
+  @@map("data_relationship")
+}
+
+model DataEvent {
+  id          String   @id @default(cuid())
+  type        String   // Event type (e.g., "created", "updated", "deleted")
+  entityId    String
+  entity      DataEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  payload     Json     // Event payload
+  timestamp   DateTime @default(now())
+  source      String?  // Event source (e.g., "webhook", "api", "workflow")
+  
+  @@index([entityId])
+  @@index([type])
+  @@index([timestamp])
+  @@map("data_event")
+}
+
+model DataSchema {
+  id          String   @id @default(cuid())
+  name        String
+  version     Int      @default(1)
+  definition  Json     // Schema definition (fields, types, constraints)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  entities    DataEntity[]
+  versions    SchemaVersion[]
+  
+  userId String
+  user   User @relation("DataSchemas", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([name, version])
+  @@index([userId])
+  @@map("data_schema")
+}
+
+model SchemaVersion {
+  id          String   @id @default(cuid())
+  schemaId    String
+  schema      DataSchema @relation(fields: [schemaId], references: [id], onDelete: Cascade)
+  version     Int
+  definition  Json
+  changelog   String?
+  createdAt   DateTime @default(now())
+  
+  @@unique([schemaId, version])
+  @@map("schema_version")
+}
+
+model EntitySnapshot {
+  id          String   @id @default(cuid())
+  entityId    String
+  entity      DataEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  properties  Json     // Snapshot of entity properties at this point in time
+  timestamp   DateTime @default(now())
+  
+  @@index([entityId])
+  @@index([timestamp])
+  @@map("entity_snapshot")
+}
+
+// ============================================================================
+// Data Layer - Connectors
+// ============================================================================
+
+enum ConnectorType {
+  REST_API
+  GRAPHQL_API
+  POSTGRES
+  MYSQL
+  MONGODB
+  CSV_FILE
+  JSON_FILE
+  EXCEL_FILE
+  WEBHOOK
+  SAAS_CRM
+  SAAS_ERP
+  SAAS_HR
+  SAAS_FINANCE
+}
+
+model DataConnector {
+  id          String   @id @default(cuid())
+  name        String
+  type        ConnectorType
+  config      Json     // Connector-specific configuration
+  isActive    Boolean  @default(true)
+  lastSyncAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  ingestions  DataIngestion[]
+  
+  userId String
+  user   User @relation("DataConnectors", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([type])
+  @@map("data_connector")
+}
+
+model DataIngestion {
+  id          String   @id @default(cuid())
+  connectorId String
+  connector   DataConnector @relation(fields: [connectorId], references: [id], onDelete: Cascade)
+  status      String   // "pending", "running", "success", "failed"
+  recordsProcessed Int @default(0)
+  error       String?  @db.Text
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  
+  @@index([connectorId])
+  @@index([status])
+  @@map("data_ingestion")
+}
+
+// ============================================================================
+// Governance - RBAC & Permissions
+// ============================================================================
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  permissions Json     // Permissions structure
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  userRoles   UserRole[]
+  
+  userId String?  // Creator/owner
+  user   User?    @relation("CreatedRoles", fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@unique([name])
+  @@map("role")
+}
+
+model UserRole {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User @relation("UserRoles", fields: [userId], references: [id], onDelete: Cascade)
+  roleId      String
+  role        Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  assignedAt  DateTime @default(now())
+  
+  @@unique([userId, roleId])
+  @@map("user_role")
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  members     TeamMember[]
+  
+  userId String  // Creator/owner
+  user   User @relation("CreatedTeams", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("team")
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  teamId      String
+  team        Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User @relation("TeamMemberships", fields: [userId], references: [id], onDelete: Cascade)
+  role        String   // "admin", "member", "viewer"
+  joinedAt    DateTime @default(now())
+  
+  @@unique([teamId, userId])
+  @@map("team_member")
+}
+
+// ============================================================================
+// Governance - Audit & Approvals
+// ============================================================================
+
+enum AuditAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  EXECUTE
+  APPROVE
+  REJECT
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation("AuditLogs", fields: [userId], references: [id], onDelete: SetNull)
+  action      AuditAction
+  resourceType String  // "workflow", "entity", "rule", etc.
+  resourceId  String
+  details     Json?    // Additional details
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([action])
+  @@index([resourceType])
+  @@index([resourceId])
+  @@index([timestamp])
+  @@map("audit_log")
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Approval {
+  id          String   @id @default(cuid())
+  workflowId String?
+  workflow    Workflow? @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  actionType  String   // Type of action requiring approval
+  actionData  Json     // Action details
+  status      ApprovalStatus @default(PENDING)
+  requestedBy String
+  requestedAt DateTime @default(now())
+  approvedBy  String?
+  approvedAt  DateTime?
+  rejectionReason String?
+  
+  steps       ApprovalStep[]
+  
+  @@index([workflowId])
+  @@index([status])
+  @@index([requestedBy])
+  @@map("approval")
+}
+
+model ApprovalStep {
+  id          String   @id @default(cuid())
+  approvalId  String
+  approval    Approval @relation(fields: [approvalId], references: [id], onDelete: Cascade)
+  stepNumber  Int
+  approverId  String
+  status      ApprovalStatus @default(PENDING)
+  comment     String?
+  completedAt DateTime?
+  
+  @@unique([approvalId, stepNumber])
+  @@map("approval_step")
+}
+
+// ============================================================================
+// Logic Layer - Rule Engine
+// ============================================================================
+
+model Rule {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  condition   Json     // Rule condition structure
+  action      Json     // Action to take when condition is met
+  priority    Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  versions    RuleVersion[]
+  executions  RuleExecution[]
+  
+  userId String
+  user   User @relation("Rules", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([isActive])
+  @@map("rule")
+}
+
+model RuleVersion {
+  id          String   @id @default(cuid())
+  ruleId      String
+  rule        Rule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  version     Int
+  condition   Json
+  action      Json
+  changelog   String?
+  createdAt   DateTime @default(now())
+  
+  @@unique([ruleId, version])
+  @@map("rule_version")
+}
+
+model RuleExecution {
+  id          String   @id @default(cuid())
+  ruleId      String
+  rule        Rule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  triggered   Boolean  @default(false)
+  result      Json?    // Execution result
+  error       String?  @db.Text
+  executedAt  DateTime @default(now())
+  
+  @@index([ruleId])
+  @@index([executedAt])
+  @@map("rule_execution")
+}
+
+// ============================================================================
+// Logic Layer - Algorithm Runtime
+// ============================================================================
+
+enum AlgorithmLanguage {
+  PYTHON
+  JAVASCRIPT
+  TYPESCRIPT
+}
+
+model Algorithm {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  language    AlgorithmLanguage
+  code        String   @db.Text
+  inputSchema Json     // Input contract definition
+  outputSchema Json    // Output contract definition
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  versions    AlgorithmVersion[]
+  executions  AlgorithmExecution[]
+  
+  userId String
+  user   User @relation("Algorithms", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([language])
+  @@map("algorithm")
+}
+
+model AlgorithmVersion {
+  id          String   @id @default(cuid())
+  algorithmId String
+  algorithm   Algorithm @relation(fields: [algorithmId], references: [id], onDelete: Cascade)
+  version     Int
+  code        String   @db.Text
+  inputSchema Json
+  outputSchema Json
+  changelog    String?
+  createdAt   DateTime @default(now())
+  
+  @@unique([algorithmId, version])
+  @@map("algorithm_version")
+}
+
+model AlgorithmExecution {
+  id          String   @id @default(cuid())
+  algorithmId String
+  algorithm   Algorithm @relation(fields: [algorithmId], references: [id], onDelete: Cascade)
+  version     Int
+  input       Json
+  output      Json?
+  error       String?  @db.Text
+  durationMs  Int?
+  memoryUsage Int?     // Memory usage in bytes
+  cpuUsage    Float?   // CPU usage percentage
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  
+  @@index([algorithmId])
+  @@index([startedAt])
+  @@map("algorithm_execution")
+}
+
+// ============================================================================
+// Enhanced Execution Models
+// ============================================================================
+
+model ExecutionStep {
+  id          String   @id @default(cuid())
+  executionId String
+  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  nodeId      String?
+  stepNumber  Int
+  type        String   // "node", "rule", "algorithm", "approval"
+  status      String   // "pending", "running", "success", "failed", "skipped"
+  input       Json?
+  output      Json?
+  error       String?  @db.Text
+  durationMs  Int?
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  
+  @@index([executionId])
+  @@index([stepNumber])
+  @@map("execution_step")
+}
+
+model ExecutionLog {
+  id          String   @id @default(cuid())
+  executionId String
+  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  level       String   // "info", "warn", "error", "debug"
+  message     String   @db.Text
+  metadata    Json?
+  timestamp   DateTime @default(now())
+  
+  @@index([executionId])
+  @@index([level])
+  @@index([timestamp])
+  @@map("execution_log")
+}
+

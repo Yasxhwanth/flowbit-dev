@@ -1,5 +1,5 @@
 import { sendWorkflowExecution } from "@/inngest/utils";
-import  {type NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,7 +8,10 @@ export async function POST(request: NextRequest) {
 
     if (!workflowId) {
       return NextResponse.json(
-        { success: false, error: "Missing required query parameter: workflowId" },
+        {
+          success: false,
+          error: "Missing required query parameter: workflowId",
+        },
         { status: 400 },
       );
     }
@@ -24,14 +27,11 @@ export async function POST(request: NextRequest) {
 
     await sendWorkflowExecution({
       workflowId,
-        initialData:{
+      initialData: {
         stripe: stripeData,
-        }
+      },
     });
-    return NextResponse.json({ success: true },
-      { status: 200 },
-    );
-
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("Stripe webhook error:", error);
     return NextResponse.json(

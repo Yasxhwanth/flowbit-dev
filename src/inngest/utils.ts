@@ -16,10 +16,10 @@ export const topologicalSort = (
     conn.fromNodeId,
     conn.toNodeId,
   ]);
-  
+
   // Track which nodes are connected (have edges)
   const connectedNodeIds = new Set<string>();
-  
+
   for (const conn of connections) {
     connectedNodeIds.add(conn.fromNodeId);
     connectedNodeIds.add(conn.toNodeId);
@@ -29,7 +29,7 @@ export const topologicalSort = (
   const isolatedNodeIds = nodes
     .filter((node) => !connectedNodeIds.has(node.id))
     .map((node) => node.id);
-  
+
   // Perform topological sort
   let sortedNodeIds: string[] = [];
   try {
@@ -43,11 +43,11 @@ export const topologicalSort = (
     }
     throw error;
   }
-  
+
   // Combine sorted nodes with isolated nodes (nodes with no connections)
   // Isolated nodes can be added at the end in any order
   const allSortedIds = [...sortedNodeIds, ...isolatedNodeIds];
-  
+
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   return allSortedIds.map((id) => nodeMap.get(id)!).filter(Boolean);
 };

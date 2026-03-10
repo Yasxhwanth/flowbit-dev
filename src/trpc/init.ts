@@ -42,7 +42,7 @@ export const baseProcedure = t.procedure;
 
 export const protectedProcedure = baseProcedure.use(({ ctx, next }) => {
   console.log("🔒 protectedProcedure check - has session?", !!ctx.session);
-  
+
   if (!ctx.session) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -80,5 +80,5 @@ export const premiumProcedure = protectedProcedure.use(
         customer,
       },
     });
-  }
+  },
 );

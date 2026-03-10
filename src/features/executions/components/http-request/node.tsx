@@ -13,15 +13,19 @@ import { HTTP_REQUEST_CHANNEL_NAME } from "@/inngest/channels/http-request";
 
 type HttpRequestNodeData = {
   endpoint?: string;
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body: string;
   variableName?: string;
-
 };
 
 const formSchema = z.object({
-  variableName: z.string().min(1, { message: "Variable name is required" })
-    .regex(/^[a-zA-Z_][a-zA-Z0-9_$]*$/, { message: " variable name must start with a letter or underscoore and container only letters,number,and underscores", }),
+  variableName: z
+    .string()
+    .min(1, { message: "Variable name is required" })
+    .regex(/^[a-zA-Z_][a-zA-Z0-9_$]*$/, {
+      message:
+        " variable name must start with a letter or underscoore and container only letters,number,and underscores",
+    }),
   endpoint: z.string().url({ message: "Please enter a valid URL" }),
   method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
   body: z.string().optional(),
@@ -51,27 +55,31 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
     nodeId: props.id,
     channel: HTTP_REQUEST_CHANNEL_NAME,
     topic: "status",
-    refreshToken:fetchHttpRequestRealtimeToken,
+    refreshToken: fetchHttpRequestRealtimeToken,
   });
 
   const handleSubmit = (values: HttpRequestFormValues) => {
-    setNodes((nodes) => nodes.map((node) => {
-      if (node.id === props.id) {
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            ...values,
-          },
-        };
-      }
-      return node;
-    }));
+    setNodes((nodes) =>
+      nodes.map((node) => {
+        if (node.id === props.id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              ...values,
+            },
+          };
+        }
+        return node;
+      }),
+    );
   };
 
   return (
     <>
-      <HttpRequestDialog open={dialogOpen} onOpenChange={setDialogOpen}
+      <HttpRequestDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
         onSubmit={handleSubmit}
         defaultEndpoint={nodeData.endpoint}
         defaultMethod={nodeData.method}

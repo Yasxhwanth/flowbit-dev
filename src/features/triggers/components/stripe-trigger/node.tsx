@@ -10,29 +10,30 @@ import { STRIPE_TRIGGER_CHANNEL_NAME } from "@/inngest/channels/stripe-trigger";
 
 type ManualTriggerNodeType = Node;
 
-export const StripeTriggerNode = memo((props: NodeProps<ManualTriggerNodeType>) => {
-  const [dialogOpen, setDialogOpen] = useState(false);
+export const StripeTriggerNode = memo(
+  (props: NodeProps<ManualTriggerNodeType>) => {
+    const [dialogOpen, setDialogOpen] = useState(false);
     const nodeStatus = useNodeStatus({
-         nodeId: props.id,
-         channel: STRIPE_TRIGGER_CHANNEL_NAME,
-         topic: "status",
-         refreshToken:fetchStripeTriggerRealtimeToken,
-       });
-  const handleOpenSettings = () => setDialogOpen(true);
+      nodeId: props.id,
+      channel: STRIPE_TRIGGER_CHANNEL_NAME,
+      topic: "status",
+      refreshToken: fetchStripeTriggerRealtimeToken,
+    });
+    const handleOpenSettings = () => setDialogOpen(true);
 
-  return (
-    <>
-      <StripeTriggerDialog
-       open={dialogOpen} onOpenChange={setDialogOpen} />
-      <BaseTriggerNode
-        {...props}
-        icon="/stripe.svg"
-        name="Stripe"
-        description="When a Stripe event occurs"
-        status={nodeStatus}
-        onSettings={handleOpenSettings}
-        onDoubleClick={handleOpenSettings}
-      />
-    </>
-  );
-});
+    return (
+      <>
+        <StripeTriggerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+        <BaseTriggerNode
+          {...props}
+          icon="/stripe.svg"
+          name="Stripe"
+          description="When a Stripe event occurs"
+          status={nodeStatus}
+          onSettings={handleOpenSettings}
+          onDoubleClick={handleOpenSettings}
+        />
+      </>
+    );
+  },
+);

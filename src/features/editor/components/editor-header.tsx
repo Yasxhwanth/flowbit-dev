@@ -23,22 +23,22 @@ import { editorAtom } from "./store/atoms";
 // SAVE BUTTON
 export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
   const editor = useAtomValue(editorAtom);
-  const saveWorkflow =useUpdateWorkflow();
-  
-  const handleSave =()=>{
-    if (!editor){
+  const saveWorkflow = useUpdateWorkflow();
+
+  const handleSave = () => {
+    if (!editor) {
       return;
     }
-    const nodes=editor.getNodes();
-    const edges=editor.getEdges();
-   
+    const nodes = editor.getNodes();
+    const edges = editor.getEdges();
+
     saveWorkflow.mutate({
-      id:workflowId,
+      id: workflowId,
       nodes,
       edges,
     });
-  }
-  
+  };
+
   return (
     <div className="ml-auto">
       <Button size="sm" onClick={handleSave} disabled={saveWorkflow.isPending}>
@@ -87,7 +87,7 @@ export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
       });
     } catch (error) {
       setName(workflow?.name || "");
-    } 
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

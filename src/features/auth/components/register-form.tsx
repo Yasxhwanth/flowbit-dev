@@ -67,7 +67,7 @@ export function RegisterForm() {
         onError: (ctx) => {
           toast.error(ctx.error.message); // must not return value
         },
-      }
+      },
     );
   };
 
@@ -105,7 +105,11 @@ export function RegisterForm() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Password" {...field} />
+                      <Input
+                        type="password"
+                        placeholder="Password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -119,7 +123,11 @@ export function RegisterForm() {
                   <FormItem>
                     <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Password" {...field} />
+                      <Input
+                        type="password"
+                        placeholder="Password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -128,11 +136,17 @@ export function RegisterForm() {
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 text-sm select-none">
-                  <input type="checkbox" className={cn("h-4 w-4 rounded border")} />
+                  <input
+                    type="checkbox"
+                    className={cn("h-4 w-4 rounded border")}
+                  />
                   Remember me
                 </label>
 
-                <Link href="/forgot-password" className="text-sm hover:underline">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm hover:underline"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -159,7 +173,7 @@ export function RegisterForm() {
                       onError: (ctx) => {
                         toast.error(ctx.error.message);
                       },
-                    }
+                    },
                   )
                 }
               >
@@ -179,7 +193,7 @@ export function RegisterForm() {
                       onError: (ctx) => {
                         toast.error(ctx.error.message);
                       },
-                    }
+                    },
                   )
                 }
               >

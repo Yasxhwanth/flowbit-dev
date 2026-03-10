@@ -15,5 +15,5 @@ export const useUpgradeModal = () => {
     return false;
   };
   const modal = <UpgradeModal open={open} onOpenChange={setOpen} />;
-    return { handleError, modal };
+  return { handleError, modal };
 };

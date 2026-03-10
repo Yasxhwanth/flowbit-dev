@@ -37,9 +37,13 @@ const formSchema = z.object({
     .string()
     .min(1, { message: "Variable name is required" })
     .regex(/^[a-zA-Z_][a-zA-Z0-9_$]*$/, {
-      message: "Variable name must start with a letter or underscore and contain only letters, numbers, and underscores",
+      message:
+        "Variable name must start with a letter or underscore and contain only letters, numbers, and underscores",
     }),
-  endpoint: z.string().min(1, { message: "Endpoint URL is required" }).url({ message: "Please enter a valid URL" }),
+  endpoint: z
+    .string()
+    .min(1, { message: "Endpoint URL is required" })
+    .url({ message: "Please enter a valid URL" }),
   method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
   body: z.string().optional(),
 });
@@ -76,7 +80,7 @@ export const HttpRequestDialog = ({
   const watchMethod = form.watch("method");
   const showBodyField = ["POST", "PUT", "PATCH"].includes(watchMethod);
   const watchVariableName = form.watch("variableName") || "myapicall";
-  
+
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit(values);
     onOpenChange(false);
@@ -108,7 +112,10 @@ export const HttpRequestDialog = ({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
+          <form
+            className="space-y-5"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
             <FormField
               control={form.control}
               name="variableName"
@@ -136,10 +143,10 @@ export const HttpRequestDialog = ({
                 <FormItem>
                   <FormLabel>Endpoint URL</FormLabel>
                   <FormControl>
-                    <Input 
+                    <Input
                       type="url"
-                      placeholder="https://api.example.com/endpoint" 
-                      {...field} 
+                      placeholder="https://api.example.com/endpoint"
+                      {...field}
                     />
                   </FormControl>
                   <FormDescription>
@@ -202,16 +209,10 @@ export const HttpRequestDialog = ({
             )}
 
             <div className="flex justify-end gap-3 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCancel}
-              >
+              <Button type="button" variant="outline" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button type="submit">
-                Save
-              </Button>
+              <Button type="submit">Save</Button>
             </div>
           </form>
         </Form>

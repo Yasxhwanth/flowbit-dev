@@ -57,7 +57,12 @@ export const StripeTriggerDialog = ({ open, onOpenChange }: Props) => {
                 readOnly
                 className="font-mono text-sm"
               />
-              <Button type="button" size="icon" variant="outline" onClick={copyToClipboard}>
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                onClick={copyToClipboard}
+              >
                 <CopyIcon className="size-4" />
               </Button>
             </div>
@@ -68,11 +73,20 @@ export const StripeTriggerDialog = ({ open, onOpenChange }: Props) => {
             <h4 className="font-medium text-sm">Setup Instructions</h4>
             <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
               <li>Open your Stripe Dashboard</li>
-              <li>Go to <b>Developers → Webhooks</b></li>
-              <li>Click <b>"Add endpoint"</b></li>
+              <li>
+                Go to <b>Developers → Webhooks</b>
+              </li>
+              <li>
+                Click <b>"Add endpoint"</b>
+              </li>
               <li>Paste the webhook URL above</li>
-              <li>Select events you want to listen for (e.g. <code>payment_intent.succeeded</code>)</li>
-              <li>Save and copy the <b>Signing Secret</b></li>
+              <li>
+                Select events you want to listen for (e.g.{" "}
+                <code>payment_intent.succeeded</code>)
+              </li>
+              <li>
+                Save and copy the <b>Signing Secret</b>
+              </li>
             </ol>
           </div>
 

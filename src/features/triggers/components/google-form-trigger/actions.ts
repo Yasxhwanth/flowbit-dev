@@ -8,9 +8,7 @@ export type GoogleFormTriggerToken = Realtime.Token<
   ["status"]
 >;
 
-export async function fetchGoogleFormTriggerRealtimeToken(): Promise<
-  GoogleFormTriggerToken
-> {
+export async function fetchGoogleFormTriggerRealtimeToken(): Promise<GoogleFormTriggerToken> {
   const response = await fetch("/api/inngest/tokens/google-form-trigger");
   if (!response.ok) {
     throw new Error("Failed to fetch Google Form Trigger token");

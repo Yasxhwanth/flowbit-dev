@@ -17,7 +17,8 @@ export const executeWorkflow = inngest.createFunction(
     id: "execute-workflow",
     retries: 0,
   },
-  { event: "workflows/execute.workflow",
+  {
+    event: "workflows/execute.workflow",
     channels: [
       httpRequestChannel(),
       manualTriggerChannel(),
@@ -26,10 +27,9 @@ export const executeWorkflow = inngest.createFunction(
       geminiChannel(),
       discordChannel(),
       slackChannel(),
-
-    ]
-   },
-  async ({ event, step,publish }) => {
+    ],
+  },
+  async ({ event, step, publish }) => {
     const workflowId = event.data.workflowId;
 
     if (!workflowId) {
@@ -45,27 +45,25 @@ export const executeWorkflow = inngest.createFunction(
         },
       });
 
-      
       return topologicalSort(workflow.nodes, workflow.connections);
     });
-    let context= event.data.initialData||{};
+    let context = event.data.initialData || {};
 
-  for (const node of sortednodes) {
-    const executor =getExecutor(node.type as NodeType)
-    const executorResult = await executor({
-      data:node.data as Record<string, unknown>,
-      nodeId:node.id,
-      context,
-      step,
-      publish,
-    })
-    context = executorResult.result;
-  }
+    for (const node of sortednodes) {
+      const executor = getExecutor(node.type as NodeType);
+      const executorResult = await executor({
+        data: node.data as Record<string, unknown>,
+        nodeId: node.id,
+        context,
+        step,
+        publish,
+      });
+      context = executorResult.result;
+    }
 
     return {
       workflowId,
       result: context,
-      
-    }
+    };
   },
 );

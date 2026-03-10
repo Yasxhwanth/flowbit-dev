@@ -1,3 +1,3 @@
-'use client';
+"use client";
 
-export { NodePropertyPanel } from './NodePropertyPanel';
+export { NodePropertyPanel } from "./NodePropertyPanel";

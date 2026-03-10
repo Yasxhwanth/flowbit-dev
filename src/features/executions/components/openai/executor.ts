@@ -27,7 +27,7 @@ export const openAIExecutor: NodeExecutor<OpenAINodeData> = async ({
     openaiChannel().status({
       nodeId,
       status: "loading",
-    })
+    }),
   );
 
   if (!data.variableName) {
@@ -55,31 +55,25 @@ export const openAIExecutor: NodeExecutor<OpenAINodeData> = async ({
       ? Handlebars.compile(data.systemPrompt)(context)
       : undefined;
 
-    const { steps } = await step.ai.wrap(
-      "openai-generate-text",
-      generateText,
-      {
-        model: openai(modelId),
-        system: resolvedSystem,
-        prompt: resolvedPrompt,
-        experimental_telemetry: {
-          isEnabled: true,
-          recordInputs: true,
-          recordOutputs: true,
-        },
-      }
-    );
+    const { steps } = await step.ai.wrap("openai-generate-text", generateText, {
+      model: openai(modelId),
+      system: resolvedSystem,
+      prompt: resolvedPrompt,
+      experimental_telemetry: {
+        isEnabled: true,
+        recordInputs: true,
+        recordOutputs: true,
+      },
+    });
 
     const text =
-      steps[0].content?.[0]?.type === "text"
-        ? steps[0].content[0].text
-        : "";
+      steps[0].content?.[0]?.type === "text" ? steps[0].content[0].text : "";
 
     await publish(
       openaiChannel().status({
         nodeId,
         status: "success",
-      })
+      }),
     );
 
     return {
@@ -96,11 +90,8 @@ export const openAIExecutor: NodeExecutor<OpenAINodeData> = async ({
       openaiChannel().status({
         nodeId,
         status: "error",
-      })
+      }),
     );
     throw error;
   }
 };
-
-
-

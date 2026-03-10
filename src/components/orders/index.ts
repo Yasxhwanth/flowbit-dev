@@ -1,3 +1,3 @@
-'use client';
+"use client";
 
-export { OrderTable } from './OrderTable';
+export { OrderTable } from "./OrderTable";

@@ -6,6 +6,5 @@ export const slackChannel = channel(SLACK_CHANNEL_NAME).addTopic(
   topic("status").type<{
     nodeId: string;
     status: "loading" | "success" | "error";
-  }>()
+  }>(),
 );
-

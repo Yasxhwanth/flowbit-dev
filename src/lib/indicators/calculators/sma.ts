@@ -3,12 +3,8 @@
  * Formula: SMA = (P1 + P2 + ... + Pn) / n
  */
 
-import type {
-    CandleData,
-    IndicatorCalculator,
-    SMAConfig,
-} from '../types';
-import { InsufficientDataError } from '../types';
+import type { CandleData, IndicatorCalculator, SMAConfig } from "../types";
+import { InsufficientDataError } from "../types";
 
 /**
  * Calculate Simple Moving Average for an array of prices
@@ -17,57 +13,57 @@ import { InsufficientDataError } from '../types';
  * @returns Array of SMA values (NaN for indices before period-1)
  */
 export function calculateSMA(prices: number[], period: number): number[] {
-    if (prices.length < period) {
-        return prices.map(() => NaN);
-    }
+  if (prices.length < period) {
+    return prices.map(() => NaN);
+  }
 
-    const result: number[] = new Array(prices.length).fill(NaN);
+  const result: number[] = new Array(prices.length).fill(NaN);
 
-    // Calculate first SMA
-    let sum = 0;
-    for (let i = 0; i < period; i++) {
-        sum += prices[i];
-    }
-    result[period - 1] = sum / period;
+  // Calculate first SMA
+  let sum = 0;
+  for (let i = 0; i < period; i++) {
+    sum += prices[i];
+  }
+  result[period - 1] = sum / period;
 
-    // Calculate subsequent SMAs using sliding window
-    for (let i = period; i < prices.length; i++) {
-        sum = sum - prices[i - period] + prices[i];
-        result[i] = sum / period;
-    }
+  // Calculate subsequent SMAs using sliding window
+  for (let i = period; i < prices.length; i++) {
+    sum = sum - prices[i - period] + prices[i];
+    result[i] = sum / period;
+  }
 
-    return result;
+  return result;
 }
 
 /**
  * SMA Calculator implementation
  */
 export const smaCalculator: IndicatorCalculator<SMAConfig> = {
-    calculate(data: CandleData, config: SMAConfig): number[] {
-        const source = config.source ?? 'close';
-        const prices = data[source];
+  calculate(data: CandleData, config: SMAConfig): number[] {
+    const source = config.source ?? "close";
+    const prices = data[source];
 
-        if (prices.length < config.period) {
-            throw new InsufficientDataError('SMA', config.period, prices.length);
-        }
+    if (prices.length < config.period) {
+      throw new InsufficientDataError("SMA", config.period, prices.length);
+    }
 
-        return calculateSMA(prices, config.period);
-    },
+    return calculateSMA(prices, config.period);
+  },
 
-    getLatest(data: CandleData, config: SMAConfig): number {
-        const source = config.source ?? 'close';
-        const prices = data[source];
+  getLatest(data: CandleData, config: SMAConfig): number {
+    const source = config.source ?? "close";
+    const prices = data[source];
 
-        if (prices.length < config.period) {
-            throw new InsufficientDataError('SMA', config.period, prices.length);
-        }
+    if (prices.length < config.period) {
+      throw new InsufficientDataError("SMA", config.period, prices.length);
+    }
 
-        const values = calculateSMA(prices, config.period);
-        const lastValid = values.filter((v) => !Number.isNaN(v)).pop();
-        return lastValid ?? NaN;
-    },
+    const values = calculateSMA(prices, config.period);
+    const lastValid = values.filter((v) => !Number.isNaN(v)).pop();
+    return lastValid ?? NaN;
+  },
 
-    getKey(config: SMAConfig): string {
-        return `SMA_${config.period}`;
-    },
+  getKey(config: SMAConfig): string {
+    return `SMA_${config.period}`;
+  },
 };

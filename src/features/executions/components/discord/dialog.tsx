@@ -7,7 +7,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -64,7 +71,7 @@ export const DiscordDialog = ({
         <Form {...form}>
           <form
             className="space-y-4"
-            onSubmit={form.handleSubmit(values => {
+            onSubmit={form.handleSubmit((values) => {
               onSubmit(values);
               onOpenChange(false);
             })}
@@ -75,7 +82,9 @@ export const DiscordDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Variable Name</FormLabel>
-                  <FormControl><Input placeholder="myDiscord" {...field} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="myDiscord" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -87,7 +96,12 @@ export const DiscordDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Webhook URL</FormLabel>
-                  <FormControl><Input placeholder="https://discord.com/api/webhooks/..." {...field} /></FormControl>
+                  <FormControl>
+                    <Input
+                      placeholder="https://discord.com/api/webhooks/..."
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -100,7 +114,11 @@ export const DiscordDialog = ({
                 <FormItem>
                   <FormLabel>Message Content</FormLabel>
                   <FormControl>
-                    <Textarea className="min-h-[100px]" placeholder="Hello world" {...field} />
+                    <Textarea
+                      className="min-h-[100px]"
+                      placeholder="Hello world"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -113,14 +131,22 @@ export const DiscordDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bot Username (optional)</FormLabel>
-                  <FormControl><Input placeholder="bot name" {...field} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="bot name" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
               <Button type="submit">Save</Button>
             </div>
           </form>
@@ -129,5 +155,3 @@ export const DiscordDialog = ({
     </Dialog>
   );
 };
-
-

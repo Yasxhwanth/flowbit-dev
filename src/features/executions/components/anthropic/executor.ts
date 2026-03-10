@@ -28,7 +28,7 @@ export const anthropicExecutor: NodeExecutor<AnthropicNodeData> = async ({
     anthropicChannel().status({
       nodeId,
       status: "loading",
-    })
+    }),
   );
 
   if (!data.variableName) {
@@ -66,19 +66,17 @@ export const anthropicExecutor: NodeExecutor<AnthropicNodeData> = async ({
           recordInputs: true,
           recordOutputs: true,
         },
-      }
+      },
     );
 
     const text =
-      steps[0].content?.[0]?.type === "text"
-        ? steps[0].content[0].text
-        : "";
+      steps[0].content?.[0]?.type === "text" ? steps[0].content[0].text : "";
 
     await publish(
       anthropicChannel().status({
         nodeId,
         status: "success",
-      })
+      }),
     );
 
     return {

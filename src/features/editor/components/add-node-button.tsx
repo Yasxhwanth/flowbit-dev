@@ -7,18 +7,18 @@ import { NodeSelector } from "@/components/node-selector";
 import { set } from "zod";
 
 export const AddNodeButton = memo(() => {
-const [selectorOpen,setSelectorOpen] = useState(false);
+  const [selectorOpen, setSelectorOpen] = useState(false);
 
   return (
     <NodeSelector open={selectorOpen} onOpenChange={setSelectorOpen}>
-    <Button
-      onClick={() => setSelectorOpen(true)}
-      size="icon"
-      variant="outline"
-      className="bg-background"
-    >
-      <PlusIcon />
-    </Button>
+      <Button
+        onClick={() => setSelectorOpen(true)}
+        size="icon"
+        variant="outline"
+        className="bg-background"
+      >
+        <PlusIcon />
+      </Button>
     </NodeSelector>
   );
 });

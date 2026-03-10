@@ -1,7 +1,7 @@
 /**
  * Parser for Condition Expressions
  * Builds an AST from tokens using recursive descent parsing
- * 
+ *
  * Grammar:
  *   expression → or_expr
  *   or_expr    → and_expr ( "OR" and_expr )*
@@ -10,172 +10,175 @@
  *   primary    → IDENTIFIER | NUMBER | "(" expression ")"
  */
 
-import {
-    Token,
-    TokenType,
-    ASTNode,
-    NodeType,
-    ParserError,
-} from './types';
+import { Token, TokenType, ASTNode, NodeType, ParserError } from "./types";
 
 /**
  * Parser class for building AST from tokens
  */
 class Parser {
-    private tokens: Token[];
-    private position: number;
+  private tokens: Token[];
+  private position: number;
 
-    constructor(tokens: Token[]) {
-        this.tokens = tokens;
-        this.position = 0;
+  constructor(tokens: Token[]) {
+    this.tokens = tokens;
+    this.position = 0;
+  }
+
+  /**
+   * Parse tokens into an AST
+   */
+  parse(): ASTNode {
+    const result = this.parseOrExpr();
+
+    if (!this.isAtEnd()) {
+      throw new ParserError(
+        `Unexpected token: ${this.current().value}`,
+        this.current().position,
+      );
     }
 
-    /**
-     * Parse tokens into an AST
-     */
-    parse(): ASTNode {
-        const result = this.parseOrExpr();
+    return result;
+  }
 
-        if (!this.isAtEnd()) {
-            throw new ParserError(
-                `Unexpected token: ${this.current().value}`,
-                this.current().position
-            );
-        }
+  /**
+   * Parse OR expressions (lowest precedence)
+   */
+  private parseOrExpr(): ASTNode {
+    let left = this.parseAndExpr();
 
-        return result;
+    while (this.match(TokenType.LOGICAL, "OR")) {
+      const right = this.parseAndExpr();
+      left = {
+        type: NodeType.BINARY_EXPR,
+        operator: "OR",
+        left,
+        right,
+      };
     }
 
-    /**
-     * Parse OR expressions (lowest precedence)
-     */
-    private parseOrExpr(): ASTNode {
-        let left = this.parseAndExpr();
+    return left;
+  }
 
-        while (this.match(TokenType.LOGICAL, 'OR')) {
-            const right = this.parseAndExpr();
-            left = {
-                type: NodeType.BINARY_EXPR,
-                operator: 'OR',
-                left,
-                right,
-            };
-        }
+  /**
+   * Parse AND expressions
+   */
+  private parseAndExpr(): ASTNode {
+    let left = this.parseComparison();
 
-        return left;
+    while (this.match(TokenType.LOGICAL, "AND")) {
+      const right = this.parseComparison();
+      left = {
+        type: NodeType.BINARY_EXPR,
+        operator: "AND",
+        left,
+        right,
+      };
     }
 
-    /**
-     * Parse AND expressions
-     */
-    private parseAndExpr(): ASTNode {
-        let left = this.parseComparison();
+    return left;
+  }
 
-        while (this.match(TokenType.LOGICAL, 'AND')) {
-            const right = this.parseComparison();
-            left = {
-                type: NodeType.BINARY_EXPR,
-                operator: 'AND',
-                left,
-                right,
-            };
-        }
+  /**
+   * Parse comparison expressions
+   */
+  private parseComparison(): ASTNode {
+    const left = this.parsePrimary();
 
-        return left;
+    if (this.check(TokenType.OPERATOR)) {
+      const operator = this.advance().value as
+        | ">"
+        | "<"
+        | ">="
+        | "<="
+        | "=="
+        | "!=";
+      const right = this.parsePrimary();
+
+      return {
+        type: NodeType.COMPARISON_EXPR,
+        operator,
+        left,
+        right,
+      };
     }
 
-    /**
-     * Parse comparison expressions
-     */
-    private parseComparison(): ASTNode {
-        const left = this.parsePrimary();
+    return left;
+  }
 
-        if (this.check(TokenType.OPERATOR)) {
-            const operator = this.advance().value as '>' | '<' | '>=' | '<=' | '==' | '!=';
-            const right = this.parsePrimary();
-
-            return {
-                type: NodeType.COMPARISON_EXPR,
-                operator,
-                left,
-                right,
-            };
-        }
-
-        return left;
+  /**
+   * Parse primary expressions (identifiers, numbers, parentheses)
+   */
+  private parsePrimary(): ASTNode {
+    // Number
+    if (this.check(TokenType.NUMBER)) {
+      const token = this.advance();
+      return {
+        type: NodeType.NUMBER,
+        value: parseFloat(token.value),
+      };
     }
 
-    /**
-     * Parse primary expressions (identifiers, numbers, parentheses)
-     */
-    private parsePrimary(): ASTNode {
-        // Number
-        if (this.check(TokenType.NUMBER)) {
-            const token = this.advance();
-            return {
-                type: NodeType.NUMBER,
-                value: parseFloat(token.value),
-            };
-        }
+    // Identifier
+    if (this.check(TokenType.IDENTIFIER)) {
+      const token = this.advance();
+      return {
+        type: NodeType.IDENTIFIER,
+        name: token.value,
+      };
+    }
 
-        // Identifier
-        if (this.check(TokenType.IDENTIFIER)) {
-            const token = this.advance();
-            return {
-                type: NodeType.IDENTIFIER,
-                name: token.value,
-            };
-        }
+    // Parenthesized expression
+    if (this.check(TokenType.LPAREN)) {
+      this.advance(); // consume '('
+      const expr = this.parseOrExpr();
 
-        // Parenthesized expression
-        if (this.check(TokenType.LPAREN)) {
-            this.advance(); // consume '('
-            const expr = this.parseOrExpr();
-
-            if (!this.check(TokenType.RPAREN)) {
-                throw new ParserError('Expected closing parenthesis', this.current().position);
-            }
-            this.advance(); // consume ')'
-
-            return expr;
-        }
-
+      if (!this.check(TokenType.RPAREN)) {
         throw new ParserError(
-            `Unexpected token: ${this.current().value || 'EOF'}`,
-            this.current().position
+          "Expected closing parenthesis",
+          this.current().position,
         );
+      }
+      this.advance(); // consume ')'
+
+      return expr;
     }
 
-    // Helper methods
+    throw new ParserError(
+      `Unexpected token: ${this.current().value || "EOF"}`,
+      this.current().position,
+    );
+  }
 
-    private current(): Token {
-        return this.tokens[this.position];
-    }
+  // Helper methods
 
-    private isAtEnd(): boolean {
-        return this.current().type === TokenType.EOF;
-    }
+  private current(): Token {
+    return this.tokens[this.position];
+  }
 
-    private check(type: TokenType): boolean {
-        return !this.isAtEnd() && this.current().type === type;
-    }
+  private isAtEnd(): boolean {
+    return this.current().type === TokenType.EOF;
+  }
 
-    private match(type: TokenType, value?: string): boolean {
-        if (this.check(type)) {
-            if (value === undefined || this.current().value === value) {
-                this.advance();
-                return true;
-            }
-        }
-        return false;
-    }
+  private check(type: TokenType): boolean {
+    return !this.isAtEnd() && this.current().type === type;
+  }
 
-    private advance(): Token {
-        if (!this.isAtEnd()) {
-            this.position++;
-        }
-        return this.tokens[this.position - 1];
+  private match(type: TokenType, value?: string): boolean {
+    if (this.check(type)) {
+      if (value === undefined || this.current().value === value) {
+        this.advance();
+        return true;
+      }
     }
+    return false;
+  }
+
+  private advance(): Token {
+    if (!this.isAtEnd()) {
+      this.position++;
+    }
+    return this.tokens[this.position - 1];
+  }
 }
 
 /**
@@ -184,6 +187,6 @@ class Parser {
  * @returns AST root node
  */
 export function parse(tokens: Token[]): ASTNode {
-    const parser = new Parser(tokens);
-    return parser.parse();
+  const parser = new Parser(tokens);
+  return parser.parse();
 }

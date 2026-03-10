@@ -54,7 +54,7 @@ export const OpenAINode = memo((props: NodeProps<OpenAINodeType>) => {
           };
         }
         return node;
-      })
+      }),
     );
   };
 
@@ -84,5 +84,3 @@ export const OpenAINode = memo((props: NodeProps<OpenAINodeType>) => {
 });
 
 OpenAINode.displayName = "OpenAINode";
-
-

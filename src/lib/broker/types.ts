@@ -10,18 +10,18 @@
 /**
  * Supported candle intervals for historical data
  */
-export type CandleInterval = '1m' | '5m' | '15m' | '30m' | '1h' | '1d';
+export type CandleInterval = "1m" | "5m" | "15m" | "30m" | "1h" | "1d";
 
 /**
  * Map of candle intervals to their duration in minutes
  */
 export const INTERVAL_MINUTES: Record<CandleInterval, number> = {
-  '1m': 1,
-  '5m': 5,
-  '15m': 15,
-  '30m': 30,
-  '1h': 60,
-  '1d': 1440,
+  "1m": 1,
+  "5m": 5,
+  "15m": 15,
+  "30m": 30,
+  "1h": 60,
+  "1d": 1440,
 } as const;
 
 // ============================================================================
@@ -32,13 +32,13 @@ export const INTERVAL_MINUTES: Record<CandleInterval, number> = {
  * Dhan exchange segment identifiers
  */
 export type DhanExchangeSegment =
-  | 'NSE_EQ'
-  | 'BSE_EQ'
-  | 'NSE_FNO'
-  | 'BSE_FNO'
-  | 'MCX_COMM'
-  | 'NSE_CURRENCY'
-  | 'BSE_CURRENCY';
+  | "NSE_EQ"
+  | "BSE_EQ"
+  | "NSE_FNO"
+  | "BSE_FNO"
+  | "MCX_COMM"
+  | "NSE_CURRENCY"
+  | "BSE_CURRENCY";
 
 // ============================================================================
 // Request Types
@@ -104,7 +104,7 @@ export interface BrokerConfig {
 /**
  * Supported brokers
  */
-export type BrokerType = 'dhan' | 'fyers' | 'angel';
+export type BrokerType = "dhan" | "fyers" | "angel";
 export type BrokerName = BrokerType; // Alias for compatibility
 
 /**
@@ -128,7 +128,7 @@ export interface BrokerCreds {
 /**
  * Router action types
  */
-export type RouterAction = 'marketData' | 'placeOrder';
+export type RouterAction = "marketData" | "placeOrder";
 
 // ============================================================================
 // Broker Adapter Interface
@@ -161,10 +161,10 @@ export class BrokerError extends Error {
   constructor(
     message: string,
     public readonly code: string,
-    public readonly statusCode?: number
+    public readonly statusCode?: number,
   ) {
     super(message);
-    this.name = 'BrokerError';
+    this.name = "BrokerError";
   }
 }
 
@@ -172,9 +172,9 @@ export class BrokerError extends Error {
  * Authentication error (invalid/expired token)
  */
 export class BrokerAuthError extends BrokerError {
-  constructor(message = 'Authentication failed. Check your access token.') {
-    super(message, 'AUTH_ERROR', 401);
-    this.name = 'BrokerAuthError';
+  constructor(message = "Authentication failed. Check your access token.") {
+    super(message, "AUTH_ERROR", 401);
+    this.name = "BrokerAuthError";
   }
 }
 
@@ -185,10 +185,10 @@ export class BrokerAPIError extends BrokerError {
   constructor(
     message: string,
     statusCode?: number,
-    public readonly brokerMessage?: string
+    public readonly brokerMessage?: string,
   ) {
-    super(message, 'API_ERROR', statusCode);
-    this.name = 'BrokerAPIError';
+    super(message, "API_ERROR", statusCode);
+    this.name = "BrokerAPIError";
   }
 }
 
@@ -196,9 +196,9 @@ export class BrokerAPIError extends BrokerError {
  * Network/connectivity error
  */
 export class BrokerNetworkError extends BrokerError {
-  constructor(message = 'Network error. Failed to reach broker API.') {
-    super(message, 'NETWORK_ERROR');
-    this.name = 'BrokerNetworkError';
+  constructor(message = "Network error. Failed to reach broker API.") {
+    super(message, "NETWORK_ERROR");
+    this.name = "BrokerNetworkError";
   }
 }
 
@@ -207,8 +207,8 @@ export class BrokerNetworkError extends BrokerError {
  */
 export class BrokerValidationError extends BrokerError {
   constructor(message: string) {
-    super(message, 'VALIDATION_ERROR', 400);
-    this.name = 'BrokerValidationError';
+    super(message, "VALIDATION_ERROR", 400);
+    this.name = "BrokerValidationError";
   }
 }
 
@@ -216,9 +216,12 @@ export class BrokerValidationError extends BrokerError {
  * Rate limit error
  */
 export class BrokerRateLimitError extends BrokerError {
-  constructor(message = 'Rate limit exceeded. Please try again later.', public retryAfterMs?: number) {
-    super(message, 'RATE_LIMIT_ERROR', 429);
-    this.name = 'BrokerRateLimitError';
+  constructor(
+    message = "Rate limit exceeded. Please try again later.",
+    public retryAfterMs?: number,
+  ) {
+    super(message, "RATE_LIMIT_ERROR", 429);
+    this.name = "BrokerRateLimitError";
   }
 }
 
@@ -229,17 +232,17 @@ export class BrokerRateLimitError extends BrokerError {
 /**
  * Order side (buy or sell)
  */
-export type OrderSide = 'BUY' | 'SELL';
+export type OrderSide = "BUY" | "SELL";
 
 /**
  * Order type
  */
-export type OrderType = 'MARKET' | 'LIMIT';
+export type OrderType = "MARKET" | "LIMIT";
 
 /**
  * Product type for orders
  */
-export type ProductType = 'CNC' | 'INTRADAY' | 'MARGIN' | 'MTF' | 'BO';
+export type ProductType = "CNC" | "INTRADAY" | "MARGIN" | "MTF" | "BO";
 
 /**
  * Order request parameters
@@ -290,4 +293,3 @@ export interface OrderBrokerAdapter extends BrokerAdapter {
    */
   placeOrder(request: OrderRequest): Promise<OrderResult>;
 }
-

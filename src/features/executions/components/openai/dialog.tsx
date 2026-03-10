@@ -66,7 +66,9 @@ export const OpenAIDialog = ({
   defaultSystemPrompt = "",
   defaultUserPrompt = "",
 }: OpenAIDialogProps) => {
-  const { data: credentials = [] } = useCredentialsByType(CredentialType.OPENAI);
+  const { data: credentials = [] } = useCredentialsByType(
+    CredentialType.OPENAI,
+  );
 
   const credentialOptions = useMemo(
     () =>
@@ -74,7 +76,7 @@ export const OpenAIDialog = ({
         id: c.id,
         name: c.name,
       })),
-    [credentials]
+    [credentials],
   );
 
   const form = useForm<z.infer<typeof openAIAFormSchema>>({
@@ -152,7 +154,8 @@ export const OpenAIDialog = ({
                     </Select>
                   </FormControl>
                   <FormDescription>
-                    Optional: choose a saved OpenAI API key, or leave empty to use the default env key.
+                    Optional: choose a saved OpenAI API key, or leave empty to
+                    use the default env key.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -213,7 +216,9 @@ export const OpenAIDialog = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>The main text sent to OpenAI.</FormDescription>
+                  <FormDescription>
+                    The main text sent to OpenAI.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -233,5 +238,3 @@ export const OpenAIDialog = ({
     </Dialog>
   );
 };
-
-

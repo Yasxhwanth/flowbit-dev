@@ -15,4 +15,3 @@ export async function fetchAnthropicRealtimeToken(): Promise<AnthropicToken> {
   }
   return response.json();
 }
-

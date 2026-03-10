@@ -9,34 +9,34 @@ import { conditionRouter } from "./condition-router";
 
 // Schema for the AI output
 const WorkflowGraphSchema = z.object({
-    nodes: z.array(
-        z.object({
-            id: z.string(),
-            type: z.nativeEnum(NodeType).or(z.string()), // Allow string for flexibility, but prefer enum
-            data: z.record(z.string(), z.any()),
-            label: z.string().optional(), // Helper for AI to describe the node
-        })
-    ),
-    edges: z.array(
-        z.object({
-            id: z.string(),
-            source: z.string(),
-            target: z.string(),
-            sourceHandle: z.string().optional(),
-            targetHandle: z.string().optional(),
-        })
-    ),
-    explanation: z.string().optional(),
+  nodes: z.array(
+    z.object({
+      id: z.string(),
+      type: z.nativeEnum(NodeType).or(z.string()), // Allow string for flexibility, but prefer enum
+      data: z.record(z.string(), z.any()),
+      label: z.string().optional(), // Helper for AI to describe the node
+    }),
+  ),
+  edges: z.array(
+    z.object({
+      id: z.string(),
+      source: z.string(),
+      target: z.string(),
+      sourceHandle: z.string().optional(),
+      targetHandle: z.string().optional(),
+    }),
+  ),
+  explanation: z.string().optional(),
 });
 
 export const aiRouter = createTRPCRouter({
-    explain: explainRouter,
-    condition: conditionRouter,
+  explain: explainRouter,
+  condition: conditionRouter,
 
-    buildStrategy: protectedProcedure
-        .input(z.object({ text: z.string() }))
-        .mutation(async ({ input }) => {
-            const prompt = `
+  buildStrategy: protectedProcedure
+    .input(z.object({ text: z.string() }))
+    .mutation(async ({ input }) => {
+      const prompt = `
 You are an expert algorithmic trading system architect. Your goal is to convert natural language strategy descriptions into a structured node-based workflow graph for the "Flowbit" trading platform.
 
 The available Node Types are:
@@ -61,55 +61,55 @@ User Strategy Description:
 Generate the JSON structure for the workflow graph.
 `;
 
-            const result = await generateObject({
-                model: openai("gpt-4o"),
-                schema: WorkflowGraphSchema,
-                prompt,
-            });
+      const result = await generateObject({
+        model: openai("gpt-4o"),
+        schema: WorkflowGraphSchema,
+        prompt,
+      });
 
-            const graph = result.object;
+      const graph = result.object;
 
-            // Auto-layout using dagre
-            const g = new dagre.graphlib.Graph();
-            g.setGraph({ rankdir: "LR" });
-            g.setDefaultEdgeLabel(() => ({}));
+      // Auto-layout using dagre
+      const g = new dagre.graphlib.Graph();
+      g.setGraph({ rankdir: "LR" });
+      g.setDefaultEdgeLabel(() => ({}));
 
-            graph.nodes.forEach((node) => {
-                g.setNode(node.id, { width: 150, height: 50 }); // Estimate size
-            });
+      graph.nodes.forEach((node) => {
+        g.setNode(node.id, { width: 150, height: 50 }); // Estimate size
+      });
 
-            graph.edges.forEach((edge) => {
-                g.setEdge(edge.source, edge.target);
-            });
+      graph.edges.forEach((edge) => {
+        g.setEdge(edge.source, edge.target);
+      });
 
-            dagre.layout(g);
+      dagre.layout(g);
 
-            const layoutNodes = graph.nodes.map((node) => {
-                const nodeWithPos = g.node(node.id);
-                return {
-                    ...node,
-                    position: {
-                        x: nodeWithPos.x - 75, // Center anchor
-                        y: nodeWithPos.y - 25,
-                    },
-                    // Ensure type is valid for our system
-                    type: mapAiTypeToSystemType(node.type),
-                };
-            });
+      const layoutNodes = graph.nodes.map((node) => {
+        const nodeWithPos = g.node(node.id);
+        return {
+          ...node,
+          position: {
+            x: nodeWithPos.x - 75, // Center anchor
+            y: nodeWithPos.y - 25,
+          },
+          // Ensure type is valid for our system
+          type: mapAiTypeToSystemType(node.type),
+        };
+      });
 
-            return {
-                nodes: layoutNodes,
-                edges: graph.edges,
-                explanation: graph.explanation || "Strategy generated successfully.",
-            };
-        }),
+      return {
+        nodes: layoutNodes,
+        edges: graph.edges,
+        explanation: graph.explanation || "Strategy generated successfully.",
+      };
+    }),
 });
 
 function mapAiTypeToSystemType(type: string): NodeType {
-    const normalized = type.toUpperCase();
-    if (normalized.includes("CANDLE")) return NodeType.INITIAL;
-    if (normalized.includes("TRIGGER")) return NodeType.MANUAL_TRIGGER;
-    // Map others to HTTP_REQUEST as placeholder if specific types don't exist
-    // Ideally we should update schema to include CANDLES, INDICATOR, etc.
-    return NodeType.INITIAL;
+  const normalized = type.toUpperCase();
+  if (normalized.includes("CANDLE")) return NodeType.INITIAL;
+  if (normalized.includes("TRIGGER")) return NodeType.MANUAL_TRIGGER;
+  // Map others to HTTP_REQUEST as placeholder if specific types don't exist
+  // Ideally we should update schema to include CANDLES, INDICATOR, etc.
+  return NodeType.INITIAL;
 }

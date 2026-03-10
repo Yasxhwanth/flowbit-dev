@@ -1,12 +1,16 @@
-import { credentialsParamsLoader } 
-  from "@/features/credentials/server/params-loader";
+import { credentialsParamsLoader } from "@/features/credentials/server/params-loader";
 import { prefetchCredentials } from "@/features/credentials/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
 import { HydrateClient } from "@/trpc/server";
 import { ErrorBoundary } from "react-error-boundary";
 import { SearchParams } from "nuqs";
 import { Suspense } from "react";
-import { CredentialsContainer, CredentialsList, CredentialsErrorView, CredentialsLoadingView } from "@/features/credentials/components/credentials";
+import {
+  CredentialsContainer,
+  CredentialsList,
+  CredentialsErrorView,
+  CredentialsLoadingView,
+} from "@/features/credentials/components/credentials";
 
 type Props = {
   searchParams: Promise<SearchParams>;
@@ -18,18 +22,17 @@ const Page = async ({ searchParams }: Props) => {
   const params = await credentialsParamsLoader(searchParams);
   await prefetchCredentials(params);
 
-
   return (
     <CredentialsContainer>
       <HydrateClient>
-      <ErrorBoundary fallback={<CredentialsErrorView />}>
-        <Suspense fallback={<CredentialsLoadingView />}>
-          <CredentialsList />
-        </Suspense>
-      </ErrorBoundary>
-    </HydrateClient>
+        <ErrorBoundary fallback={<CredentialsErrorView />}>
+          <Suspense fallback={<CredentialsLoadingView />}>
+            <CredentialsList />
+          </Suspense>
+        </ErrorBoundary>
+      </HydrateClient>
     </CredentialsContainer>
-  );  
+  );
 };
 
 export default Page;

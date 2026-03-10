@@ -41,8 +41,8 @@ export const AnthropicNode = memo((props: NodeProps<AnthropicNodeType>) => {
       nodes.map((node) =>
         node.id === props.id
           ? { ...node, data: { ...node.data, ...values } }
-          : node
-      )
+          : node,
+      ),
     );
   };
 
@@ -72,6 +72,3 @@ export const AnthropicNode = memo((props: NodeProps<AnthropicNodeType>) => {
 });
 
 AnthropicNode.displayName = "AnthropicNode";
-
-
-

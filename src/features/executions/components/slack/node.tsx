@@ -30,17 +30,16 @@ export const SlackNode = memo((props: NodeProps<SlackNodeType>) => {
   });
 
   const handleSubmit = (values: z.infer<typeof slackSchema>) => {
-    setNodes(nodes =>
-      nodes.map(n =>
-        n.id === props.id
-          ? { ...n, data: { ...n.data, ...values } }
-          : n
-      )
+    setNodes((nodes) =>
+      nodes.map((n) =>
+        n.id === props.id ? { ...n, data: { ...n.data, ...values } } : n,
+      ),
     );
   };
 
   const desc = props.data?.content
-    ? props.data.content.slice(0, 40) + (props.data.content.length > 40 ? "..." : "")
+    ? props.data.content.slice(0, 40) +
+      (props.data.content.length > 40 ? "..." : "")
     : "Not configured";
 
   return (
@@ -69,4 +68,3 @@ export const SlackNode = memo((props: NodeProps<SlackNodeType>) => {
 });
 
 SlackNode.displayName = "SlackNode";
-

@@ -12,7 +12,11 @@ export default function ExecutionDetailPage() {
   const params = useParams();
   const executionId = params.executionId as string;
 
-  const { data: execution, isLoading, error } = trpc.executions.getOne.useQuery({
+  const {
+    data: execution,
+    isLoading,
+    error,
+  } = trpc.executions.getOne.useQuery({
     id: executionId,
   });
 
@@ -34,7 +38,7 @@ export default function ExecutionDetailPage() {
 
   // Extract logs and trades from output if available
   // Assuming output structure { logs: [], trades: [] } or similar
-  const output = execution.output as any || {};
+  const output = (execution.output as any) || {};
   const logs = output.logs || [];
   const trades = output.trades || [];
 
@@ -51,12 +55,19 @@ export default function ExecutionDetailPage() {
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Execution Details</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Execution Details
+          </h1>
           <p className="text-muted-foreground">
-            ID: {execution.id} • {formatDistanceToNow(new Date(execution.startedAt), { addSuffix: true })}
+            ID: {execution.id} •{" "}
+            {formatDistanceToNow(new Date(execution.startedAt), {
+              addSuffix: true,
+            })}
           </p>
         </div>
-        <Badge variant={execution.status === "SUCCESS" ? "default" : "destructive"}>
+        <Badge
+          variant={execution.status === "SUCCESS" ? "default" : "destructive"}
+        >
           {execution.status}
         </Badge>
       </div>
@@ -82,13 +93,27 @@ export default function ExecutionDetailPage() {
                 <div className="bg-muted/50 p-4 rounded-md font-mono text-xs overflow-x-auto max-h-[400px]">
                   {logs.map((log: any, i: number) => (
                     <div key={i} className="mb-1">
-                      <span className="text-muted-foreground">[{new Date(log.timestamp || Date.now()).toLocaleTimeString()}]</span>{" "}
-                      <span className={log.level === "ERROR" ? "text-destructive" : ""}>{log.message}</span>
+                      <span className="text-muted-foreground">
+                        [
+                        {new Date(
+                          log.timestamp || Date.now(),
+                        ).toLocaleTimeString()}
+                        ]
+                      </span>{" "}
+                      <span
+                        className={
+                          log.level === "ERROR" ? "text-destructive" : ""
+                        }
+                      >
+                        {log.message}
+                      </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="text-muted-foreground text-sm">No logs available.</div>
+                <div className="text-muted-foreground text-sm">
+                  No logs available.
+                </div>
               )}
             </CardContent>
           </Card>
@@ -107,7 +132,9 @@ export default function ExecutionDetailPage() {
                 </div>
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-muted-foreground">Nodes</span>
-                  <span className="font-medium">{execution.workflow.nodes.length}</span>
+                  <span className="font-medium">
+                    {execution.workflow.nodes.length}
+                  </span>
                 </div>
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-muted-foreground">Status</span>

@@ -7,7 +7,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -61,7 +68,14 @@ export const SlackDialog = ({
         username: defaultUsername,
       });
     }
-  }, [open, defaultVariableName, defaultWebhookUrl, defaultContent, defaultUsername, form]);
+  }, [
+    open,
+    defaultVariableName,
+    defaultWebhookUrl,
+    defaultContent,
+    defaultUsername,
+    form,
+  ]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -69,14 +83,18 @@ export const SlackDialog = ({
         <DialogHeader>
           <DialogTitle>Slack Configuration</DialogTitle>
           <DialogDescription>
-            Send a message using a Slack webhook URL. For Workflow Builder, use <code className="bg-background px-1 rounded text-xs">{"{{content}}"}</code> in your Slack workflow message step.
+            Send a message using a Slack webhook URL. For Workflow Builder, use{" "}
+            <code className="bg-background px-1 rounded text-xs">
+              {"{{content}}"}
+            </code>{" "}
+            in your Slack workflow message step.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
           <form
             className="space-y-4"
-            onSubmit={form.handleSubmit(values => {
+            onSubmit={form.handleSubmit((values) => {
               onSubmit(values);
               onOpenChange(false);
             })}
@@ -87,7 +105,9 @@ export const SlackDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Variable Name</FormLabel>
-                  <FormControl><Input placeholder="mySlack" {...field} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="mySlack" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -99,7 +119,12 @@ export const SlackDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Webhook URL</FormLabel>
-                  <FormControl><Input placeholder="https://hooks.slack.com/services/..." {...field} /></FormControl>
+                  <FormControl>
+                    <Input
+                      placeholder="https://hooks.slack.com/services/..."
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -112,7 +137,11 @@ export const SlackDialog = ({
                 <FormItem>
                   <FormLabel>Message Content</FormLabel>
                   <FormControl>
-                    <Textarea className="min-h-[100px]" placeholder="Hello world" {...field} />
+                    <Textarea
+                      className="min-h-[100px]"
+                      placeholder="Hello world"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,14 +154,22 @@ export const SlackDialog = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bot Username (optional)</FormLabel>
-                  <FormControl><Input placeholder="bot name" {...field} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="bot name" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             <div className="flex justify-end gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
               <Button type="submit">Save</Button>
             </div>
           </form>
@@ -141,4 +178,3 @@ export const SlackDialog = ({
     </Dialog>
   );
 };
-

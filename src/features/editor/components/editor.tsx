@@ -17,7 +17,16 @@ import {
   type OnSelectionChangeParams,
 } from "@xyflow/react";
 import { useSetAtom } from "jotai";
-import { RotateCcw, RotateCw, Trash2, Settings, Loader2, AlertCircle, Save, Clock } from "lucide-react";
+import {
+  RotateCcw,
+  RotateCw,
+  Trash2,
+  Settings,
+  Loader2,
+  AlertCircle,
+  Save,
+  Clock,
+} from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/trpc/client";
 
@@ -29,6 +38,7 @@ import { nodeComponents } from "@/config/node-components";
 import { AddNodeButton } from "./add-node-button";
 import { ExecuteWorkflowButton } from "./execute-workflow-button";
 import { WorkflowSettingsPanel } from "@/components/workflow/WorkflowSettingsPanel";
+import { AIGeneratorButton } from "./ai-generator-button";
 
 const createInitialNode = (): Node => ({
   id:
@@ -91,13 +101,13 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
     try {
       await updateWorkflowMutation.mutateAsync({
         id: workflow.id,
-        nodes: nodes.map(n => ({
+        nodes: nodes.map((n) => ({
           id: n.id,
           type: n.type,
           position: n.position,
           data: n.data,
         })),
-        edges: edges.map(e => ({
+        edges: edges.map((e) => ({
           source: e.source,
           target: e.target,
           sourceHandle: e.sourceHandle || null,
@@ -140,26 +150,26 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       setNodes((nodesSnapshot) =>
-        normalizeNodes(applyNodeChanges(changes, nodesSnapshot))
+        normalizeNodes(applyNodeChanges(changes, nodesSnapshot)),
       );
       // Push to history after a small delay to batch rapid changes
       setTimeout(() => pushHistory(), 100);
     },
-    [pushHistory]
+    [pushHistory],
   );
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
       setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot));
       setTimeout(() => pushHistory(), 100);
     },
-    [pushHistory]
+    [pushHistory],
   );
   const onConnect = useCallback(
     (params: Connection) => {
       setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot));
       setTimeout(() => pushHistory(), 100);
     },
-    [pushHistory]
+    [pushHistory],
   );
 
   // Undo/Redo functions
@@ -192,8 +202,8 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
     setNodes((prev) => prev.filter((n) => !selectedIds.has(n.id)));
     setEdges((prev) =>
       prev.filter(
-        (e) => !selectedIds.has(e.source) && !selectedIds.has(e.target)
-      )
+        (e) => !selectedIds.has(e.source) && !selectedIds.has(e.target),
+      ),
     );
 
     setSelectedNodes([]);
@@ -279,6 +289,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         <MiniMap />
         <Panel position="top-right">
           <div className="flex gap-2">
+            <AIGeneratorButton workflowId={workflowId} />
             <Button
               variant="outline"
               size="sm"
@@ -286,7 +297,11 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
               disabled={isSaving}
               title="Save Workflow"
             >
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {isSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
             </Button>
             <Button
               variant="outline"
@@ -342,28 +357,26 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         )}
       </ReactFlow>
 
-      {
-        workflow && (
-          <>
-            <WorkflowSettingsPanel
-              open={settingsOpen}
-              workflow={workflow as any}
-              onClose={() => setSettingsOpen(false)}
-              onSave={() => {
-                window.location.reload();
-              }}
-            />
-            <VersionHistoryPanel
-              open={versionPanelOpen}
-              onOpenChange={setVersionPanelOpen}
-              workflowId={workflow.id}
-              onRestore={() => {
-                window.location.reload();
-              }}
-            />
-          </>
-        )
-      }
+      {workflow && (
+        <>
+          <WorkflowSettingsPanel
+            open={settingsOpen}
+            workflow={workflow as any}
+            onClose={() => setSettingsOpen(false)}
+            onSave={() => {
+              window.location.reload();
+            }}
+          />
+          <VersionHistoryPanel
+            open={versionPanelOpen}
+            onOpenChange={setVersionPanelOpen}
+            workflowId={workflow.id}
+            onRestore={() => {
+              window.location.reload();
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };

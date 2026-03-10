@@ -1,4 +1,8 @@
-import type { NodeExecutor, NodeExecutorParams, WorkflowContext } from "@/features/executions/types";
+import type {
+  NodeExecutor,
+  NodeExecutorParams,
+  WorkflowContext,
+} from "@/features/executions/types";
 import { googleFormTriggerChannel } from "@/inngest/channels/google-form-trigger";
 
 type GoogleFormTriggerData = Record<string, unknown>;
@@ -15,7 +19,9 @@ interface GoogleFormContext extends WorkflowContext {
   };
 }
 
-export const googleFormTriggerExecutor: NodeExecutor<GoogleFormTriggerData> = async ({
+export const googleFormTriggerExecutor: NodeExecutor<
+  GoogleFormTriggerData
+> = async ({
   nodeId,
   context,
   step,

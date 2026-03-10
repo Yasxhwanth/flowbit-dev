@@ -12,7 +12,7 @@ import { useExecutionParams } from "./use-executions-params";
  * ⚠️ Intended for SERVER components only. Do not use in client components
  * as it can cause infinite re-render / refetch loops.
  */
-export const useSuspenseExecutions= () => {
+export const useSuspenseExecutions = () => {
   return trpc.executions.getMany.useSuspenseQuery({});
 };
 
@@ -22,7 +22,7 @@ export const useSuspenseExecutions= () => {
  * Uses standard React Query semantics instead of Suspense to avoid
  * infinite refetch loops when used in client components.
  */
-export const useExecution= () => {
+export const useExecution = () => {
   const [params] = useExecutionParams();
 
   return trpc.executions.getMany.useQuery(params);
@@ -48,8 +48,3 @@ export const useSuspenseExecution = (credentialId: string) => {
  */
 export const useCredentialsByType = (type: CredentialType) =>
   trpc.credentials.getByType.useQuery({ type });
-
-
-
-
-

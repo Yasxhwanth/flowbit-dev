@@ -13,10 +13,6 @@ export async function GET() {
     return NextResponse.json(token);
   } catch (error) {
     console.error("Failed to get Manual Trigger token:", error);
-    return NextResponse.json(
-      { error: "Failed to get token" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to get token" }, { status: 500 });
   }
 }
-

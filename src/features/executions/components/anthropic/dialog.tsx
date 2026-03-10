@@ -1,7 +1,21 @@
 "use client";
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -45,7 +59,9 @@ export const AnthropicDialog = ({
   defaultSystemPrompt?: string;
   defaultUserPrompt?: string;
 }) => {
-  const { data: credentials = [] } = useCredentialsByType(CredentialType.ANTHROPIC);
+  const { data: credentials = [] } = useCredentialsByType(
+    CredentialType.ANTHROPIC,
+  );
 
   const credentialOptions = useMemo(
     () =>
@@ -53,7 +69,7 @@ export const AnthropicDialog = ({
         id: c.id,
         name: c.name,
       })),
-    [credentials]
+    [credentials],
   );
 
   const form = useForm<z.infer<typeof anthropicFormSchema>>({
@@ -123,7 +139,8 @@ export const AnthropicDialog = ({
                     </Select>
                   </FormControl>
                   <FormDescription>
-                    Optional: choose a saved Anthropic API key, or leave empty to use the default env key.
+                    Optional: choose a saved Anthropic API key, or leave empty
+                    to use the default env key.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -184,5 +201,3 @@ export const AnthropicDialog = ({
     </Dialog>
   );
 };
-
-

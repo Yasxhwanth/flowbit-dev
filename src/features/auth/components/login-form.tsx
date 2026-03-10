@@ -59,7 +59,7 @@ export function LoginForm() {
         onError: (ctx) => {
           toast.error(ctx.error.message);
         },
-      }
+      },
     );
   };
 
@@ -117,7 +117,10 @@ export function LoginForm() {
                   Remember me
                 </label>
 
-                <Link href="/forgot-password" className="text-sm hover:underline">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm hover:underline"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -144,7 +147,7 @@ export function LoginForm() {
                       onError: (ctx) => {
                         toast.error(ctx.error.message);
                       },
-                    }
+                    },
                   )
                 }
               >
@@ -164,7 +167,7 @@ export function LoginForm() {
                       onError: (ctx) => {
                         toast.error(ctx.error.message);
                       },
-                    }
+                    },
                   )
                 }
               >
@@ -185,6 +188,3 @@ export function LoginForm() {
     </div>
   );
 }
-
-
-

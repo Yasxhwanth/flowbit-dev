@@ -1,6 +1,8 @@
-
 import { CredentialView } from "@/features/credentials/components/credential";
-import { CredentialsErrorView, CredentialsLoadingView } from "@/features/credentials/components/credentials";
+import {
+  CredentialsErrorView,
+  CredentialsLoadingView,
+} from "@/features/credentials/components/credentials";
 import { prefetchCredential } from "@/features/credentials/server/prefetch";
 import { requireAuth } from "@/lib/auth-utils";
 import { HydrateClient } from "@/trpc/server";
@@ -19,23 +21,19 @@ const Page = async ({ params }: PageProps) => {
   const { credentialId } = await params;
   prefetchCredential(credentialId);
 
-
-  return(
+  return (
     <div className="p-4 md:px-10 md:py-6 h-full">
-    <div className="mx-auto max-w-screen-md w-full flex flex-col gap-y-8 h-full">
-      <HydrateClient>
-        <ErrorBoundary fallback={<CredentialsErrorView />}>
-          <Suspense fallback={<CredentialsLoadingView/>}>
-            <CredentialView credentialId={credentialId} />
-          </Suspense>
-        </ErrorBoundary>
-      </HydrateClient>
+      <div className="mx-auto max-w-screen-md w-full flex flex-col gap-y-8 h-full">
+        <HydrateClient>
+          <ErrorBoundary fallback={<CredentialsErrorView />}>
+            <Suspense fallback={<CredentialsLoadingView />}>
+              <CredentialView credentialId={credentialId} />
+            </Suspense>
+          </ErrorBoundary>
+        </HydrateClient>
+      </div>
     </div>
-  </div>
-  
   );
-    };
+};
 
 export default Page;
-
-  

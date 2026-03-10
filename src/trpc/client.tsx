@@ -20,7 +20,7 @@ export function createTRPCClient() {
   return trpc.createClient({
     links: [
       httpBatchLink({
-        transformer:superjson,
+        transformer: superjson,
         url: `${getBaseUrl()}/api/trpc`,
         fetch(url, options) {
           return fetch(url, {
@@ -39,14 +39,17 @@ export function createTRPCClient() {
 }
 
 export function TRPCReactProvider({ children }: { children: React.ReactNode }) {
-  const [queryClient] = React.useState(() => new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        refetchOnWindowFocus: false,
-      },
-    },
-  }));
+  const [queryClient] = React.useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+  );
 
   const [trpcClient] = React.useState(() => createTRPCClient());
 
@@ -58,6 +61,3 @@ export function TRPCReactProvider({ children }: { children: React.ReactNode }) {
     </QueryClientProvider>
   );
 }
-
-
-

@@ -1,5 +1,5 @@
 import { LoadingView } from "@/components/entity-components";
 
 export default function Loading() {
-    return <LoadingView message="Loading workflow..." />;
+  return <LoadingView message="Loading workflow..." />;
 }

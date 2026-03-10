@@ -21,7 +21,7 @@ export const discordExecutor: NodeExecutor<DiscordNodeData> = async ({
     discordChannel().status({
       nodeId,
       status: "loading",
-    })
+    }),
   );
 
   if (!data.webhookUrl) {
@@ -38,7 +38,9 @@ export const discordExecutor: NodeExecutor<DiscordNodeData> = async ({
 
     // Must be a string
     if (!resolvedContent || typeof resolvedContent !== "string") {
-      throw new NonRetriableError("Resolved message content is not a valid string");
+      throw new NonRetriableError(
+        "Resolved message content is not a valid string",
+      );
     }
 
     // Discord max length is 2000 chars
@@ -82,7 +84,7 @@ export const discordExecutor: NodeExecutor<DiscordNodeData> = async ({
       discordChannel().status({
         nodeId,
         status: "success",
-      })
+      }),
     );
 
     // Optional variable assignment
@@ -100,10 +102,8 @@ export const discordExecutor: NodeExecutor<DiscordNodeData> = async ({
       discordChannel().status({
         nodeId,
         status: "error",
-      })
+      }),
     );
     throw error;
   }
 };
-
-

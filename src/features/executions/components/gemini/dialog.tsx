@@ -66,7 +66,9 @@ export const GeminiDialog = ({
   defaultSystemPrompt = "",
   defaultUserPrompt = "",
 }: GeminiDialogProps) => {
-  const { data: credentials = [] } = useCredentialsByType(CredentialType.GEMINI);
+  const { data: credentials = [] } = useCredentialsByType(
+    CredentialType.GEMINI,
+  );
 
   const credentialOptions = useMemo(
     () =>
@@ -74,7 +76,7 @@ export const GeminiDialog = ({
         id: c.id,
         name: c.name,
       })),
-    [credentials]
+    [credentials],
   );
 
   const geminiForm = useForm<z.infer<typeof geminiFormSchema>>({
@@ -152,7 +154,8 @@ export const GeminiDialog = ({
                     </Select>
                   </FormControl>
                   <FormDescription>
-                    Optional: choose a saved Gemini API key, or leave empty to use the default env key.
+                    Optional: choose a saved Gemini API key, or leave empty to
+                    use the default env key.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -216,7 +219,9 @@ export const GeminiDialog = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormDescription>The main text sent to Gemini.</FormDescription>
+                  <FormDescription>
+                    The main text sent to Gemini.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

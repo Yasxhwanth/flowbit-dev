@@ -3,11 +3,15 @@
  * Extensible pattern for registering and retrieving indicator calculators
  */
 
-import type { IndicatorCalculator, IndicatorConfig, IndicatorType } from './types';
-import { smaCalculator } from './calculators/sma';
-import { emaCalculator } from './calculators/ema';
-import { rsiCalculator } from './calculators/rsi';
-import { macdCalculator } from './calculators/macd';
+import type {
+  IndicatorCalculator,
+  IndicatorConfig,
+  IndicatorType,
+} from "./types";
+import { smaCalculator } from "./calculators/sma";
+import { emaCalculator } from "./calculators/ema";
+import { rsiCalculator } from "./calculators/rsi";
+import { macdCalculator } from "./calculators/macd";
 
 /**
  * Registry of all available indicator calculators
@@ -15,18 +19,20 @@ import { macdCalculator } from './calculators/macd';
 const indicatorRegistry = new Map<IndicatorType, IndicatorCalculator>();
 
 // Register built-in calculators
-indicatorRegistry.set('SMA', smaCalculator as IndicatorCalculator);
-indicatorRegistry.set('EMA', emaCalculator as IndicatorCalculator);
-indicatorRegistry.set('RSI', rsiCalculator as IndicatorCalculator);
-indicatorRegistry.set('MACD', macdCalculator as IndicatorCalculator);
+indicatorRegistry.set("SMA", smaCalculator as IndicatorCalculator);
+indicatorRegistry.set("EMA", emaCalculator as IndicatorCalculator);
+indicatorRegistry.set("RSI", rsiCalculator as IndicatorCalculator);
+indicatorRegistry.set("MACD", macdCalculator as IndicatorCalculator);
 
 /**
  * Get calculator for a specific indicator type
  * @param type - Indicator type
  * @returns Calculator instance or undefined
  */
-export function getCalculator(type: IndicatorType): IndicatorCalculator | undefined {
-    return indicatorRegistry.get(type);
+export function getCalculator(
+  type: IndicatorType,
+): IndicatorCalculator | undefined {
+  return indicatorRegistry.get(type);
 }
 
 /**
@@ -36,10 +42,13 @@ export function getCalculator(type: IndicatorType): IndicatorCalculator | undefi
  * @param calculator - Calculator implementation
  */
 export function registerCalculator<T extends IndicatorConfig>(
-    type: string,
-    calculator: IndicatorCalculator<T>
+  type: string,
+  calculator: IndicatorCalculator<T>,
 ): void {
-    indicatorRegistry.set(type as IndicatorType, calculator as IndicatorCalculator);
+  indicatorRegistry.set(
+    type as IndicatorType,
+    calculator as IndicatorCalculator,
+  );
 }
 
 /**
@@ -47,7 +56,7 @@ export function registerCalculator<T extends IndicatorConfig>(
  * @returns Array of registered indicator types
  */
 export function getRegisteredTypes(): IndicatorType[] {
-    return Array.from(indicatorRegistry.keys());
+  return Array.from(indicatorRegistry.keys());
 }
 
 /**
@@ -56,5 +65,5 @@ export function getRegisteredTypes(): IndicatorType[] {
  * @returns True if registered
  */
 export function isRegistered(type: string): type is IndicatorType {
-    return indicatorRegistry.has(type as IndicatorType);
+  return indicatorRegistry.has(type as IndicatorType);
 }

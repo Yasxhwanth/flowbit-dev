@@ -10,29 +10,33 @@ import { GOOGLE_FORM_TRIGGER_CHANNEL_NAME } from "@/inngest/channels/google-form
 
 type ManualTriggerNodeType = Node;
 
-export const GoogleFormTrigger = memo((props: NodeProps<ManualTriggerNodeType>) => {
-  const [dialogOpen, setDialogOpen] = useState(false);
+export const GoogleFormTrigger = memo(
+  (props: NodeProps<ManualTriggerNodeType>) => {
+    const [dialogOpen, setDialogOpen] = useState(false);
     const nodeStatus = useNodeStatus({
-         nodeId: props.id,
-         channel: GOOGLE_FORM_TRIGGER_CHANNEL_NAME,
-         topic: "status",
-         refreshToken:fetchGoogleFormTriggerRealtimeToken,
-       });
-  const handleOpenSettings = () => setDialogOpen(true);
+      nodeId: props.id,
+      channel: GOOGLE_FORM_TRIGGER_CHANNEL_NAME,
+      topic: "status",
+      refreshToken: fetchGoogleFormTriggerRealtimeToken,
+    });
+    const handleOpenSettings = () => setDialogOpen(true);
 
-  return (
-    <>
-      <GoogleFormTriggerDialog
-       open={dialogOpen} onOpenChange={setDialogOpen} />
-      <BaseTriggerNode
-        {...props}
-        icon="/googleform.svg"
-        name="Google Form"
-        description="When a Google Form is submitted"
-        status={nodeStatus}
-        onSettings={handleOpenSettings}
-        onDoubleClick={handleOpenSettings}
-      />
-    </>
-  );
-});
+    return (
+      <>
+        <GoogleFormTriggerDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
+        <BaseTriggerNode
+          {...props}
+          icon="/googleform.svg"
+          name="Google Form"
+          description="When a Google Form is submitted"
+          status={nodeStatus}
+          onSettings={handleOpenSettings}
+          onDoubleClick={handleOpenSettings}
+        />
+      </>
+    );
+  },
+);

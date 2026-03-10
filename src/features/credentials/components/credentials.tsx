@@ -12,10 +12,7 @@ import {
   EmptyView,
 } from "@/components/entity-components";
 
-import {
-  useRemoveCredential,
-  useCredentials,
-} from "../hooks/use-credentials";
+import { useRemoveCredential, useCredentials } from "../hooks/use-credentials";
 
 import { useCredentialsParams } from "../hooks/use-credentials-params";
 import { useEntitySearch } from "@/hooks/use-entity-search";
@@ -183,6 +180,10 @@ const credentialLogos: Record<CredentialType, string> = {
   [CredentialType.OPENAI]: "/openai.svg",
   [CredentialType.ANTHROPIC]: "/anthropic.svg",
   [CredentialType.GEMINI]: "/gemini.svg",
+  [CredentialType.WHATSAPP]: "/whatsapp.svg",
+  [CredentialType.GMAIL]: "/gmail.svg",
+  [CredentialType.MYSQL]: "/mysql.svg",
+  [CredentialType.MONGODB]: "/mongodb.svg",
 };
 
 export const CredentialItem = ({ data }: { data: Credential }) => {

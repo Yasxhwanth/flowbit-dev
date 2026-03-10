@@ -2,10 +2,7 @@
 import type { Realtime } from "@inngest/realtime";
 import { geminiChannel } from "@/inngest/channels/gemini";
 
-export type GeminiToken = Realtime.Token<
-  typeof geminiChannel,
-  ["status"]
->;
+export type GeminiToken = Realtime.Token<typeof geminiChannel, ["status"]>;
 
 export async function fetchGeminiRealtimeToken(): Promise<GeminiToken> {
   const response = await fetch("/api/inngest/tokens/gemini");

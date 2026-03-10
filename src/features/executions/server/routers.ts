@@ -3,7 +3,6 @@ import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import z from "zod";
 import { PAGINATION } from "@/config/constants";
 
-
 export const executionsRouter = createTRPCRouter({
   // -----------------------------
   // GET ONE CREDENTIAL
@@ -39,10 +38,10 @@ export const executionsRouter = createTRPCRouter({
           .min(PAGINATION.DEFAULT_PAGE_SIZE)
           .max(PAGINATION.MAX_PAGE_SIZE)
           .default(PAGINATION.DEFAULT_PAGE_SIZE),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
-      const { page, pageSize, } = input;
+      const { page, pageSize } = input;
 
       const where = {
         userId: ctx.auth.user.id,
@@ -55,7 +54,7 @@ export const executionsRouter = createTRPCRouter({
           where: {
             workflow: {
               userId: ctx.auth.user.id,
-            }
+            },
           },
           orderBy: { startedAt: "desc" },
           include: {
@@ -73,7 +72,7 @@ export const executionsRouter = createTRPCRouter({
             workflow: {
               userId: ctx.auth.user.id,
             },
-          }
+          },
         }),
       ]);
 
@@ -91,7 +90,4 @@ export const executionsRouter = createTRPCRouter({
         hasPreviousPage,
       };
     }),
-
 });
-
-

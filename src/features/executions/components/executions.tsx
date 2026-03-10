@@ -142,15 +142,15 @@ export const ExecutionItem = ({ data }: { data: any }) => {
     data.status === "FAILED"
       ? "text-destructive"
       : data.status === "COMPLETED"
-      ? "text-emerald-500"
-      : "text-muted-foreground";
+        ? "text-emerald-500"
+        : "text-muted-foreground";
 
   const title =
     data.status === "FAILED"
       ? "Failed"
       : data.status === "COMPLETED"
-      ? "Completed"
-      : "Running";
+        ? "Completed"
+        : "Running";
 
   return (
     <EntityItem
@@ -165,9 +165,7 @@ export const ExecutionItem = ({ data }: { data: any }) => {
             </span>
           </div>
           <div className="flex gap-4">
-            <span>
-              Started {createdAgo}
-            </span>
+            <span>Started {createdAgo}</span>
             <span className={statusColor}>Status: {data.status}</span>
           </div>
           {data.error && (
@@ -181,5 +179,3 @@ export const ExecutionItem = ({ data }: { data: any }) => {
     />
   );
 };
-
-

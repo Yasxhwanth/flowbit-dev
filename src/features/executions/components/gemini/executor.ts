@@ -27,7 +27,7 @@ export const geminiExecutor: NodeExecutor<GeminiNodeData> = async ({
     geminiChannel().status({
       nodeId,
       status: "loading",
-    })
+    }),
   );
 
   if (!data.variableName) {
@@ -52,38 +52,31 @@ export const geminiExecutor: NodeExecutor<GeminiNodeData> = async ({
     const google = createGoogleGenerativeAI({ apiKey });
 
     const resolvedPrompt = Handlebars.compile(data.userPrompt)(context);
-    const resolvedSystem =
-      data.systemPrompt
-        ? Handlebars.compile(data.systemPrompt)(context)
-        : undefined;
+    const resolvedSystem = data.systemPrompt
+      ? Handlebars.compile(data.systemPrompt)(context)
+      : undefined;
 
     // ⭐ Gemini wrapper like in your screenshot
-    const { steps } = await step.ai.wrap(
-      "gemini-generate-text",
-      generateText,
-      {
-        model: google(model),
-        system: resolvedSystem,
-        prompt: resolvedPrompt,
+    const { steps } = await step.ai.wrap("gemini-generate-text", generateText, {
+      model: google(model),
+      system: resolvedSystem,
+      prompt: resolvedPrompt,
 
-        experimental_telemetry: {
-          isEnabled: true,
-          recordInputs: true,
-          recordOutputs: true,
-        },
-      }
-    );
+      experimental_telemetry: {
+        isEnabled: true,
+        recordInputs: true,
+        recordOutputs: true,
+      },
+    });
 
     const text =
-      steps[0].content?.[0]?.type === "text"
-        ? steps[0].content[0].text
-        : "";
+      steps[0].content?.[0]?.type === "text" ? steps[0].content[0].text : "";
 
     await publish(
       geminiChannel().status({
         nodeId,
         status: "success",
-      })
+      }),
     );
 
     return {
@@ -100,10 +93,8 @@ export const geminiExecutor: NodeExecutor<GeminiNodeData> = async ({
       geminiChannel().status({
         nodeId,
         status: "error",
-      })
+      }),
     );
     throw error;
   }
 };
-
-

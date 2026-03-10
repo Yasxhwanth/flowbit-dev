@@ -113,9 +113,9 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
         });
       } else {
         await createCredential.mutateAsync(values, {
-            onSuccess:(data)=>{
-              router.push(`/credentials/${data.id}`);
-            },
+          onSuccess: (data) => {
+            router.push(`/credentials/${data.id}`);
+          },
           onError: (error) => {
             handleError(error);
           },
@@ -149,7 +149,6 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
         <CardContent className="pt-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-
               {/* Name */}
               <FormField
                 control={form.control}
@@ -158,10 +157,7 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="My API key"
-                        {...field}
-                      />
+                      <Input placeholder="My API key" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -216,11 +212,7 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
                   <FormItem>
                     <FormLabel>API Key</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="sk-..."
-                        {...field}
-                      />
+                      <Input type="password" placeholder="sk-..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -241,7 +233,6 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
                   Cancel
                 </Button>
               </div>
-
             </form>
           </Form>
         </CardContent>
@@ -250,13 +241,8 @@ export const CredentialForm = ({ initialData }: CredentialFormProps) => {
   );
 };
 
+export const CredentialView = ({ credentialId }: { credentialId: string }) => {
+  const credential = useSuspenseCredential(credentialId);
 
-export const CredentialView = ({
-    credentialId,
-  }: {
-    credentialId: string;
-  }) => {
-    const  credential  = useSuspenseCredential(credentialId);
-  
-    return <CredentialForm initialData={credential} />;
-  };
+  return <CredentialForm initialData={credential} />;
+};

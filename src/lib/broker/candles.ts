@@ -3,14 +3,14 @@
  * Main entry point for fetching OHLC candle data (uses brokerRouter)
  */
 
-import { brokerRouter } from './router';
-import { validateCandleRequest } from './validate-candles';
+import { brokerRouter } from "./router";
+import { validateCandleRequest } from "./validate-candles";
 import {
-    type BrokerName,
-    type BrokerCreds,
-    type CandleRequest,
-    type NormalizedCandles,
-} from './types';
+  type BrokerName,
+  type BrokerCreds,
+  type CandleRequest,
+  type NormalizedCandles,
+} from "./types";
 
 // ============================================================================
 // Main API
@@ -35,34 +35,35 @@ import {
  * ```
  */
 export async function fetchCandles(
-    request: CandleRequest,
-    broker: BrokerName = 'dhan',
-    creds?: BrokerCreds
+  request: CandleRequest,
+  broker: BrokerName = "dhan",
+  creds?: BrokerCreds,
 ): Promise<NormalizedCandles> {
-    // Validate request against broker capabilities
-    validateCandleRequest(request, broker);
+  // Validate request against broker capabilities
+  validateCandleRequest(request, broker);
 
-    console.log(`[Candles] Fetching via router: ${broker}`);
+  console.log(`[Candles] Fetching via router: ${broker}`);
 
-    return brokerRouter<NormalizedCandles>({
-        broker,
-        action: 'marketData',
-        payload: request,
-        creds,
-    });
+  return brokerRouter<NormalizedCandles>({
+    broker,
+    action: "marketData",
+    payload: request,
+    creds,
+  });
 }
 
 /**
  * Legacy: Get a broker adapter for advanced usage
  * @deprecated Use fetchCandles with broker parameter instead
  */
-export function getBrokerAdapter(broker: BrokerName = 'dhan') {
-    console.warn('[Candles] getBrokerAdapter is deprecated, use fetchCandles with broker parameter');
+export function getBrokerAdapter(broker: BrokerName = "dhan") {
+  console.warn(
+    "[Candles] getBrokerAdapter is deprecated, use fetchCandles with broker parameter",
+  );
 
-    // Return a minimal adapter-like object for backward compatibility
-    return {
-        name: broker,
-        fetchCandles: (request: CandleRequest) => fetchCandles(request, broker),
-    };
+  // Return a minimal adapter-like object for backward compatibility
+  return {
+    name: broker,
+    fetchCandles: (request: CandleRequest) => fetchCandles(request, broker),
+  };
 }
-

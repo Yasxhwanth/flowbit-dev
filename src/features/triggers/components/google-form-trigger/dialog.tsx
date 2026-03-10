@@ -21,14 +21,11 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
-export const GoogleFormTriggerDialog = ({
-  open,
-  onOpenChange,
-}: Props) => {
+export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
   const params = useParams();
   const workflowId = params.workflowId as string;
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const webhookUrl = `${baseUrl}/api/webhooks/google-form?workflowId=${workflowId}`;
 
   const copyToClipboard = async () => {
@@ -46,14 +43,13 @@ export const GoogleFormTriggerDialog = ({
         <DialogHeader>
           <DialogTitle>Google Form Trigger Configuration</DialogTitle>
           <DialogDescription>
-            Use this webhook URL to connect your Google Form submissions to this trigger.
+            Use this webhook URL to connect your Google Form submissions to this
+            trigger.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="webhook-url">
-              Webhook URL
-            </Label>
+            <Label htmlFor="webhook-url">Webhook URL</Label>
             <div className="flex gap-2">
               <Input
                 id="webhook-url"
@@ -96,7 +92,6 @@ export const GoogleFormTriggerDialog = ({
                 } catch {
                   toast.error("Failed to copy Script to clipboard");
                 }
-
               }}
             >
               <CopyIcon className="size-4 mr-2" />
@@ -129,8 +124,6 @@ export const GoogleFormTriggerDialog = ({
               </li>
             </ul>
           </div>
-
-
         </div>
       </DialogContent>
     </Dialog>

@@ -11,26 +11,25 @@ interface UseNodeStatusOptions {
 }
 
 export function useNodeStatus({
-    nodeId,
+  nodeId,
   channel,
   topic,
   refreshToken,
-
 }: UseNodeStatusOptions) {
-    const [status, setStatus] = useState<NodeStatus>("initial");
+  const [status, setStatus] = useState<NodeStatus>("initial");
 
-    const { data } = useInngestSubscription({
-      refreshToken,
-      enabled: true,
-    });
-    
-    useEffect(() => {
-      if (!data?.length) {
-        return;
-      }
-    
-      // Find the latest message for this node
-      const latestMessage = data
+  const { data } = useInngestSubscription({
+    refreshToken,
+    enabled: true,
+  });
+
+  useEffect(() => {
+    if (!data?.length) {
+      return;
+    }
+
+    // Find the latest message for this node
+    const latestMessage = data
       .filter(
         (msg) =>
           msg.kind === "data" &&
@@ -46,10 +45,10 @@ export function useNodeStatus({
         }
         return 0;
       })[0];
-    
-      if ( latestMessage?.kind === "data") {
-        setStatus(latestMessage.data.status as NodeStatus);
-      }
-    }, [data, nodeId, channel, topic]);
-    return status;
+
+    if (latestMessage?.kind === "data") {
+      setStatus(latestMessage.data.status as NodeStatus);
+    }
+  }, [data, nodeId, channel, topic]);
+  return status;
 }

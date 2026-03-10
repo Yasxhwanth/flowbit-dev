@@ -13,7 +13,11 @@ export type NodeStatusIndicatorProps = {
 };
 
 /* ---------------- LOADING (POPPY BLUE) ---------------- */
-export const SpinnerLoadingIndicator = ({ children }: { children: ReactNode }) => {
+export const SpinnerLoadingIndicator = ({
+  children,
+}: {
+  children: ReactNode;
+}) => {
   return (
     <div className="relative">
       <StatusBorder className="border-blue-500 shadow-[0_0_10px_3px_rgba(0,115,255,0.6)]">
@@ -49,7 +53,12 @@ export const BorderLoadingIndicator = ({
         `}
         </style>
 
-        <div className={cn("absolute inset-0 overflow-hidden rounded-sm", className)}>
+        <div
+          className={cn(
+            "absolute inset-0 overflow-hidden rounded-sm",
+            className,
+          )}
+        >
           <div className="absolute left-1/2 top-1/2 w-[140%] aspect-square rounded-full bg-[conic-gradient(from_0deg,rgb(0,140,255),rgba(0,140,255,0))] animate-[spin_1.8s_linear_infinite]" />
         </div>
       </div>
@@ -94,7 +103,11 @@ export const NodeStatusIndicator = ({
         return <SpinnerLoadingIndicator>{children}</SpinnerLoadingIndicator>;
       }
       if (variant === "border") {
-        return <BorderLoadingIndicator className={className}>{children}</BorderLoadingIndicator>;
+        return (
+          <BorderLoadingIndicator className={className}>
+            {children}
+          </BorderLoadingIndicator>
+        );
       }
       return <>{children}</>;
 
@@ -104,7 +117,7 @@ export const NodeStatusIndicator = ({
         <StatusBorder
           className={cn(
             "border-green-500 shadow-[0_0_12px_4px_rgba(0,200,90,0.6)]",
-            className
+            className,
           )}
         >
           {children}
@@ -117,7 +130,7 @@ export const NodeStatusIndicator = ({
         <StatusBorder
           className={cn(
             "border-red-500 shadow-[0_0_12px_4px_rgba(255,60,60,0.6)]",
-            className
+            className,
           )}
         >
           {children}
@@ -129,4 +142,3 @@ export const NodeStatusIndicator = ({
       return <>{children}</>;
   }
 };
-

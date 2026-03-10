@@ -34,8 +34,7 @@ const triggerNodes: NodeTypeOption[] = [
   {
     type: NodeType.GOOGLE_FORM_TRIGGER,
     label: "Google Form",
-    description:
-      "Runs the flow when a Google Form is submitted",
+    description: "Runs the flow when a Google Form is submitted",
     icon: "/googleform.svg",
   },
   {
@@ -58,19 +57,19 @@ const executionNodes: NodeTypeOption[] = [
     type: NodeType.GEMINI,
     label: "Gemini AI",
     description: "Uses Gemini AI to generate text",
-    icon: '/gemini.svg',
+    icon: "/gemini.svg",
   },
   {
     type: NodeType.OPENAI,
     label: "OpenAI",
     description: "Uses OpenAI to generate text",
-    icon: '/openai.svg',
+    icon: "/openai.svg",
   },
   {
     type: NodeType.ANTHROPIC,
     label: "Anthropic",
     description: "Uses Anthropic to generate text",
-    icon: '/anthropic.svg',
+    icon: "/anthropic.svg",
   },
   {
     type: NodeType.DISCORD,
@@ -122,53 +121,54 @@ interface NodeSelectorProps {
   children: React.ReactNode;
 }
 
-export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProps) {
+export function NodeSelector({
+  open,
+  onOpenChange,
+  children,
+}: NodeSelectorProps) {
   const { setNodes, getNodes, screenToFlowPosition } = useReactFlow();
-  const handleNodeSelect = useCallback((selection: NodeTypeOption) => {
-    // Check if trying to add a manual trigger when one already exists
-    if (selection.type === NodeType.MANUAL_TRIGGER) {
-      const nodes = getNodes();
-      const hasManualTrigger = nodes.some(
-        (node) => node.type === NodeType.MANUAL_TRIGGER,
-      );
+  const handleNodeSelect = useCallback(
+    (selection: NodeTypeOption) => {
+      // Check if trying to add a manual trigger when one already exists
+      if (selection.type === NodeType.MANUAL_TRIGGER) {
+        const nodes = getNodes();
+        const hasManualTrigger = nodes.some(
+          (node) => node.type === NodeType.MANUAL_TRIGGER,
+        );
 
-      if (hasManualTrigger) {
-        toast.error("Only one manual trigger is allowed per workflow");
-        return;
+        if (hasManualTrigger) {
+          toast.error("Only one manual trigger is allowed per workflow");
+          return;
+        }
       }
-    }
 
-    setNodes((nodes) => {
-      // Always drop any INITIAL ("plus") nodes once the user adds a real node
-      const cleanedNodes = nodes.filter(
-        (node) => node.type !== NodeType.INITIAL,
-      );
+      setNodes((nodes) => {
+        // Always drop any INITIAL ("plus") nodes once the user adds a real node
+        const cleanedNodes = nodes.filter(
+          (node) => node.type !== NodeType.INITIAL,
+        );
 
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
 
-      const flowPosition = screenToFlowPosition({
-        x: centerX + (Math.random() - 0.5) * 200,
-        y: centerY + (Math.random() - 0.5) * 200,
+        const flowPosition = screenToFlowPosition({
+          x: centerX + (Math.random() - 0.5) * 200,
+          y: centerY + (Math.random() - 0.5) * 200,
+        });
+
+        const newNode = {
+          id: createId(),
+          type: selection.type,
+          position: flowPosition,
+          data: {},
+        };
+
+        return [...cleanedNodes, newNode];
       });
-
-      const newNode = {
-        id: createId(),
-        type: selection.type,
-        position: flowPosition,
-        data: {},
-      };
-
-      return [...cleanedNodes, newNode];
-    });
-    onOpenChange(false);
-
-  }, [
-    getNodes,
-    onOpenChange,
-    screenToFlowPosition,
-    setNodes,
-  ]);
+      onOpenChange(false);
+    },
+    [getNodes, onOpenChange, screenToFlowPosition, setNodes],
+  );
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>{children}</SheetTrigger>
@@ -201,7 +201,9 @@ export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProps
                     <Icon className="size-5" />
                   )}
                   <div className="flex flex-col overflow-hidden">
-                    <p className="text-sm font-medium truncate">{nodeType.label}</p>
+                    <p className="text-sm font-medium truncate">
+                      {nodeType.label}
+                    </p>
                     <p className="text-xs text-muted-foreground truncate">
                       {nodeType.description}
                     </p>
@@ -232,7 +234,9 @@ export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProps
                     <Icon className="size-5" />
                   )}
                   <div className="flex flex-col overflow-hidden">
-                    <p className="text-sm font-medium truncate">{nodeType.label}</p>
+                    <p className="text-sm font-medium truncate">
+                      {nodeType.label}
+                    </p>
                     <p className="text-xs text-muted-foreground truncate">
                       {nodeType.description}
                     </p>
@@ -242,7 +246,6 @@ export function NodeSelector({ open, onOpenChange, children }: NodeSelectorProps
             );
           })}
         </div>
-
       </SheetContent>
     </Sheet>
   );

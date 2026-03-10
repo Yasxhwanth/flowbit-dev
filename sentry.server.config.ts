@@ -12,7 +12,7 @@ Sentry.init({
       recordInputs: true, // Whether to record AI inputs
       recordOutputs: true, // Whether to record AI outputs
     }),
-    Sentry.consoleLoggingIntegration({levels:["log","warn","error"]}),
+    Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
   ],
 
   // Set tracesSampleRate to 1.0 to capture 100%
@@ -20,7 +20,7 @@ Sentry.init({
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
   tracesSampleRate: 1,
-  
+
   // Enable logs to be sent to Sentry
   enableLogs: true,
 
@@ -28,5 +28,5 @@ Sentry.init({
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
   sendDefaultPii: true,
 
-  debug:false,
+  debug: false,
 });

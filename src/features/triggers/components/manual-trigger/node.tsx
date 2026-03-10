@@ -9,27 +9,29 @@ import { fetchManualTriggerRealtimeToken } from "./actions";
 
 type ManualTriggerNodeType = Node;
 
-export const ManualTriggerNode = memo((props: NodeProps<ManualTriggerNodeType>) => {
-  const [dialogOpen, setDialogOpen] = useState(false);
-   const nodeStatus = useNodeStatus({
+export const ManualTriggerNode = memo(
+  (props: NodeProps<ManualTriggerNodeType>) => {
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const nodeStatus = useNodeStatus({
       nodeId: props.id,
       channel: MANUAL_TRIGGER_CHANNEL_NAME,
       topic: "status",
-      refreshToken:fetchManualTriggerRealtimeToken,
+      refreshToken: fetchManualTriggerRealtimeToken,
     });
-  const handleOpenSettings = () => setDialogOpen(true);
+    const handleOpenSettings = () => setDialogOpen(true);
 
-  return (
-    <>
-      <ManualTriggerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
-      <BaseTriggerNode
-        {...props}
-        icon={MousePointerIcon}
-        name="When clicking 'Execute workflow"
-        status={nodeStatus}
-        onSettings={handleOpenSettings}
-        onDoubleClick={handleOpenSettings}
-      />
-    </>
-  );
-});
+    return (
+      <>
+        <ManualTriggerDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+        <BaseTriggerNode
+          {...props}
+          icon={MousePointerIcon}
+          name="When clicking 'Execute workflow"
+          status={nodeStatus}
+          onSettings={handleOpenSettings}
+          onDoubleClick={handleOpenSettings}
+        />
+      </>
+    );
+  },
+);
